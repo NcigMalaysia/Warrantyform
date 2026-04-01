@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Tracker Konsistensi Amalan - 90 Hari</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c2c 0%, #2a4a35 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1f2a1b;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            color: #2d6a4f;
+            margin-bottom: 8px;
+        }
+
+        .date-range {
+            background: #e9f5ef;
+            padding: 10px;
+            border-radius: 20px;
+            margin: 12px 0;
+            font-weight: 500;
+        }
+
+        .stats-badge {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 20px;
+            flex: 1;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2d6a4f;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #5e6e5c;
+        }
+
+        /* Progress bar */
+        .progress-section {
+            background: white;
+            border-radius: 24px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar-container {
+            background: #e0e7e3;
+            border-radius: 30px;
+            height: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #40916c, #2d6a4f);
+            width: 0%;
+            height: 100%;
+            border-radius: 30px;
+            transition: width 0.3s ease;
+        }
+
+        /* Hari selector */
+        .day-selector {
+            background: white;
+            border-radius: 24px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .day-nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #1b4d3e;
+        }
+
+        #currentDayDisplay {
+            font-weight: bold;
+            background: #e9f5ef;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+        }
+
+        .reset-day-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Checklist */
+        .checklist {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .category {
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e0e7e3;
+            padding-bottom: 16px;
+        }
+
+        .category:last-child {
+            border-bottom: none;
+        }
+
+        .category-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #2d6a4f;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 8px;
+            border-bottom: 1px solid #f0f2f1;
+            gap: 12px;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #2d6a4f;
+        }
+
+        .task-name {
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .task-name.completed {
+            text-decoration: line-through;
+            color: #8b9a8a;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #2d6a4f;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Result section */
+        .result-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1f4d3a;
+            text-align: center;
+        }
+
+        .consistency-score {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            background: #e9f5ef;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .score-number {
+            font-size: 2.4rem;
+            font-weight: bold;
+            color: #2d6a4f;
+        }
+
+        .verdict {
+            text-align: center;
+            font-size: 1rem;
+            padding: 12px;
+            border-radius: 40px;
+            margin-top: 12px;
+            background: #f8f9fa;
+        }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .day-box {
+            text-align: center;
+            font-size: 0.7rem;
+            padding: 8px 4px;
+            border-radius: 12px;
+            background: #f1f3f2;
+        }
+
+        .day-box.completed {
+            background: #2d6a4f;
+            color: white;
+        }
+
+        .day-box.partial {
+            background: #ffcd94;
+        }
+
+        hr {
+            margin: 15px 0;
+            border-color: #e0e7e3;
+        }
+
+        footer {
+            text-align: center;
+            color: #d0e2d4;
+            font-size: 0.7rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📋 Tracker Konsistensi Amalan</h1>
+        <div class="date-range" id="dateRangeDisplay"></div>
+        <div class="stats-badge">
+            <div class="stat-card">
+                <div class="stat-number" id="totalDaysCount">0</div>
+                <div class="stat-label">Hari Dilalui</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalTasksCompleted">0</div>
+                <div class="stat-label">Jumlah Task Selesai</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgConsistency">0%</div>
+                <div class="stat-label">Purata Konsisten</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-section">
+        <div style="display: flex; justify-content: space-between;">
+            <span>📆 Progress 90 Hari</span>
+            <span id="progressPercentLabel">0%</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <div class="day-selector">
+        <div class="day-nav">
+            <button class="nav-btn" id="prevDayBtn">◀</button>
+            <span id="currentDayDisplay">Hari 1</span>
+            <button class="nav-btn" id="nextDayBtn">▶</button>
+        </div>
+        <button class="reset-day-btn" id="resetDayBtn">↺ Reset Hari Ini</button>
+    </div>
+
+    <div class="checklist" id="checklistContainer">
+        <!-- Tasks akan dijana dengan JS -->
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn-primary" id="saveDayBtn">💾 Simpan Hari Ini</button>
+        <button class="btn-secondary" id="viewResultBtn">📊 Lihat Keputusan Konsistensi</button>
+    </div>
+
+    <div class="result-card" id="resultPanel" style="display: none;">
+        <div class="result-title">📈 Laporan Konsistensi 3 Bulan</div>
+        <div class="consistency-score">
+            <div class="score-circle">
+                <span class="score-number" id="overallScore">0%</span>
+                <span style="font-size: 0.7rem;">Konsisten</span>
+            </div>
+        </div>
+        <div id="verdictText" class="verdict"></div>
+        <hr>
+        <div><strong>✅ Analisis:</strong> <span id="analysisDetail"></span></div>
+        <div style="margin-top: 12px;"><strong>📅 Ringkasan Mingguan (terkini):</strong></div>
+        <div id="weeklySummary" class="week-grid"></div>
+        <button id="closeResultBtn" style="margin-top: 12px; background: none; border: 1px solid #2d6a4f; padding: 6px; border-radius: 40px; width: 100%; cursor: pointer;">Tutup</button>
+    </div>
+    <footer>Konsisten setiap hari = kemenangan. Istiqamah! 🌟</footer>
+</div>
+
+<script>
+    // Definisi amalan harian
+    const TASKS = [
+        { id: "subuh", name: "🕌 Solat Subuh", category: "Solat Fardhu" },
+        { id: "zohor", name: "🕌 Solat Zohor", category: "Solat Fardhu" },
+        { id: "asar", name: "🕌 Solat Asar", category: "Solat Fardhu" },
+        { id: "magrib", name: "🕌 Solat Magrib", category: "Solat Fardhu" },
+        { id: "isyak", name: "🕌 Solat Isyak", category: "Solat Fardhu" },
+        { id: "sunat_subuh", name: "🌟 Solat Sunat Sebelum Subuh (2 rakaat)", category: "Solat Sunat" },
+        { id: "dhuha", name: "☀️ Solat Dhuha", category: "Solat Sunat" },
+        { id: "waqiah", name: "📖 Baca Surah Al-Waqiah (1 kali)", category: "Bacaan Al-Quran" },
+        { id: "yasin", name: "📖 Baca Surah Yasin", category: "Bacaan Al-Quran" }
+    ];
+
+    // Tarikh mula: esok
+    let startDate = new Date();
+    startDate.setDate(startDate.getDate() + 1);
+    startDate.setHours(0, 0, 0, 0);
+    
+    const TOTAL_DAYS = 90;
+    let currentDayIndex = 0; // 0-based, hari ke-1 = index 0
+    let allData = []; // array untuk 90 hari, setiap hari: { dateStr, tasks: { taskId: boolean } }
+    
+    // Initialize data dari localStorage atau baru
+    function loadData() {
+        const saved = localStorage.getItem("amalan_tracker_90");
+        if(saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if(parsed.startDate && parsed.data && parsed.data.length === TOTAL_DAYS) {
+                    startDate = new Date(parsed.startDate);
+                    allData = parsed.data;
+                    return;
+                }
+            } catch(e) {}
+        }
+        // Init baru
+        initFreshData();
+    }
+    
+    function initFreshData() {
+        allData = [];
+        const todayRef = new Date();
+        todayRef.setHours(0,0,0,0);
+        for(let i = 0; i < TOTAL_DAYS; i++) {
+            const currentDate = new Date(startDate);
+            currentDate.setDate(startDate.getDate() + i);
+            const tasksObj = {};
+            TASKS.forEach(task => { tasksObj[task.id] = false; });
+            allData.push({
+                dateStr: currentDate.toISOString().split('T')[0],
+                tasks: tasksObj
+            });
+        }
+        saveToLocal();
+    }
+    
+    function saveToLocal() {
+        const toStore = {
+            startDate: startDate.toISOString(),
+            data: allData
+        };
+        localStorage.setItem("amalan_tracker_90", JSON.stringify(toStore));
+    }
+    
+    // Dapatkan data hari berdasarkan index
+    function getCurrentDayData() {
+        return allData[currentDayIndex];
+    }
+    
+    function updateUIForCurrentDay() {
+        const dayData = getCurrentDayData();
+        const dayNumber = currentDayIndex + 1;
+        const dateObj = new Date(startDate);
+        dateObj.setDate(startDate.getDate() + currentDayIndex);
+        const formattedDate = dateObj.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById("currentDayDisplay").innerHTML = `Hari ${dayNumber} · ${formattedDate}`;
+        
+        // Render checklist
+        renderChecklist(dayData.tasks);
+        updateOverallStats();
+        updateProgressBar();
+    }
+    
+    function renderChecklist(tasksStatus) {
+        const container = document.getElementById("checklistContainer");
+        // group by category
+        const categories = {};
+        TASKS.forEach(task => {
+            if(!categories[task.category]) categories[task.category] = [];
+            categories[task.category].push(task);
+        });
+        
+        let html = "";
+        for(let cat in categories) {
+            html += `<div class="category"><div class="category-title">📌 ${cat}</div>`;
+            categories[cat].forEach(task => {
+                const isChecked = tasksStatus[task.id] === true;
+                const completedClass = isChecked ? "completed" : "";
+                html += `
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox" data-task-id="${task.id}" ${isChecked ? "checked" : ""}>
+                        <span class="task-name ${completedClass}">${task.name}</span>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+        
+        // attach event listeners to checkboxes
+        document.querySelectorAll('.task-checkbox').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const taskId = cb.dataset.taskId;
+                const dayData = getCurrentDayData();
+                dayData.tasks[taskId] = cb.checked;
+                // update visual text style
+                const taskSpan = cb.parentElement.querySelector('.task-name');
+                if(cb.checked) taskSpan.classList.add('completed');
+                else taskSpan.classList.remove('completed');
+                saveToLocal();
+                updateOverallStats();
+                updateProgressBar();
+            });
+        });
+    }
+    
+    function updateOverallStats() {
+        let totalCompletedTasks = 0;
+        let totalPossibleTasks = 0;
+        let daysWithData = 0;
+        for(let i = 0; i <= currentDayIndex; i++) {
+            const day = allData[i];
+            const tasksObj = day.tasks;
+            const taskValues = Object.values(tasksObj);
+            const completedCount = taskValues.filter(v => v === true).length;
+            totalCompletedTasks += completedCount;
+            totalPossibleTasks += TASKS.length;
+            if(completedCount > 0 || i <= currentDayIndex) daysWithData++;
+        }
+        // untuk hari2 selepas currentDayIndex tidak dikira dalam purata
+        const avgPercentage = totalPossibleTasks > 0 ? Math.round((totalCompletedTasks / totalPossibleTasks) * 100) : 0;
+        document.getElementById("totalTasksCompleted").innerText = totalCompletedTasks;
+        document.getElementById("avgConsistency").innerText = `${avgPercentage}%`;
+        const daysPassed = currentDayIndex + 1;
+        document.getElementById("totalDaysCount").innerText = daysPassed;
+    }
+    
+    function updateProgressBar() {
+        const daysDone = currentDayIndex + 1;
+        const percent = Math.min(100, Math.round((daysDone / TOTAL_DAYS) * 100));
+        document.getElementById("progressFill").style.width = `${percent}%`;
+        document.getElementById("progressPercentLabel").innerText = `${percent}%`;
+    }
+    
+    function saveCurrentDay() {
+        saveToLocal();
+        alert("✅ Data hari ini disimpan! Teruskan istiqamah.");
+        updateOverallStats();
+    }
+    
+    function showResult() {
+        // Kira konsistensi sepanjang hari yang telah dilalui (hari 1 hingga hari ke-(currentDayIndex+1))
+        let totalDaysTracked = currentDayIndex + 1;
+        let perfectDays = 0;
+        let totalTasksDoneAll = 0;
+        let dailyScores = [];
+        for(let i = 0; i <= currentDayIndex; i++) {
+            const day = allData[i];
+            const tasksArr = Object.values(day.tasks);
+            const doneCount = tasksArr.filter(v => v === true).length;
+            const percentageDay = (doneCount / TASKS.length) * 100;
+            dailyScores.push(percentageDay);
+            totalTasksDoneAll += doneCount;
+            if(percentageDay === 100) perfectDays++;
+        }
+        const totalPossibleTasks = totalDaysTracked * TASKS.length;
+        const overallPercent = totalPossibleTasks > 0 ? Math.round((totalTasksDoneAll / totalPossibleTasks) * 100) : 0;
+        
+        let verdict = "";
+        let analysisMsg = "";
+        if(overallPercent >= 90) {
+            verdict = "🏆 Tahniah! Anda SANGAT KONSISTEN! Teruskan momentum ini. Anda serius dan komited!";
+            analysisMsg = `Anda konsisten ${overallPercent}% sepanjang ${totalDaysTracked} hari. ${perfectDays} hari sempurna (100%). Luar biasa!`;
+        } else if(overallPercent >= 70) {
+            verdict = "👍 Bagus! Konsistensi anda baik. Tingkatkan lagi untuk capai 90% ke atas.";
+            analysisMsg = `Purata konsisten ${overallPercent}%. ${perfectDays} hari penuh. Fokus pada task yang terlepas.`;
+        } else if(overallPercent >= 50) {
+            verdict = "⚡ Sederhana. Masih ada ruang untuk perbaiki. Jangan putus asa!";
+            analysisMsg = `Konsisten ${overallPercent}%. Cuba buat checklist harian tanpa tinggal.`;
+        } else {
+            verdict = "🌱 Masih awal atau kurang konsisten. Mulakan niat baru, esok lebih baik!";
+            analysisMsg = `Kadar konsisten ${overallPercent}%. Tetapkan target minima 5 task sehari. Anda pasti mampu!`;
+        }
+        
+        document.getElementById("overallScore").innerText = `${overallPercent}%`;
+        document.getElementById("verdictText").innerHTML = verdict;
+        document.getElementById("analysisDetail").innerHTML = analysisMsg;
+        
+        // weekly summary last 2 weeks
+        const startWeekIndex = Math.max(0, currentDayIndex - 13);
+        const weekArray = [];
+        for(let i = startWeekIndex; i <= currentDayIndex; i++) {
+            const day = allData[i];
+            const tasksArr = Object.values(day.tasks);
+            const doneCount = tasksArr.filter(v => v === true).length;
+            const percentDay = doneCount / TASKS.length;
+            let statusClass = "day-box";
+            if(percentDay === 1) statusClass += " completed";
+            else if(percentDay >= 0.5) statusClass += " partial";
+            weekArray.push({ dayNum: i+1, percent: percentDay, class: statusClass });
+        }
+        const weeklyContainer = document.getElementById("weeklySummary");
+        weeklyContainer.innerHTML = weekArray.map(w => `<div class="${w.class}">H${w.dayNum}<br>${Math.round(w.percent*100)}%</div>`).join('');
+        
+        document.getElementById("resultPanel").style.display = "block";
+        document.getElementById("resultPanel").scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // navigation
+    function goPrevDay() {
+        if(currentDayIndex > 0) {
+            currentDayIndex--;
+            updateUIForCurrentDay();
+        } else {
+            alert("Ini adalah hari pertama.");
+        }
+    }
+    
+    function goNextDay() {
+        if(currentDayIndex < TOTAL_DAYS - 1) {
+            currentDayIndex++;
+            updateUIForCurrentDay();
+        } else {
+            alert("Anda sudah mencapai hari ke-90. Tahniah!");
+        }
+    }
+    
+    function resetCurrentDay() {
+        if(confirm("Reset semua checklist untuk hari ini? Tindakan ini akan membatalkan semua tick.")) {
+            const dayData = getCurrentDayData();
+            TASKS.forEach(task => { dayData.tasks[task.id] = false; });
+            saveToLocal();
+            updateUIForCurrentDay();
+            updateOverallStats();
+            updateProgressBar();
+        }
+    }
+    
+    // set date range display
+    function updateDateRange() {
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + TOTAL_DAYS - 1);
+        const startStr = startDate.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+        const endStr = endDate.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById("dateRangeDisplay").innerHTML = `📅 ${startStr} → ${endStr} (90 hari)`;
+    }
+    
+    // event binding
+    document.getElementById("prevDayBtn").addEventListener("click", goPrevDay);
+    document.getElementById("nextDayBtn").addEventListener("click", goNextDay);
+    document.getElementById("resetDayBtn").addEventListener("click", resetCurrentDay);
+    document.getElementById("saveDayBtn").addEventListener("click", saveCurrentDay);
+    document.getElementById("viewResultBtn").addEventListener("click", showResult);
+    document.getElementById("closeResultBtn").addEventListener("click", () => {
+        document.getElementById("resultPanel").style.display = "none";
+    });
+    
+    // initialize everything
+    loadData();
+    updateDateRange();
+    // pastikan currentDayIndex 0 (start)
+    currentDayIndex = 0;
+    updateUIForCurrentDay();
+    
+    // extra: jika hari esok belum tercapai tapi kita paksa tengok data hari esok juga dibenarkan
+    // semua good
+</script>
+</body>
+</html>
