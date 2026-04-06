@@ -2,8 +2,10 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Tracker Konsistensi Amalan - 90 Hari</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>NCIG Malaysia - Sistem Waranti Rasmi</title>
+    <!-- Chart.js untuk graf ringan -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,666 +14,613 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c2c 0%, #2a4a35 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #1f2a1b;
+            background: #eef2f5;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Roboto', sans-serif;
+            padding: 40px 32px;
+            color: #1e2a3a;
         }
 
+        /* Container utama - lebar profesional */
         .container {
-            max-width: 800px;
+            max-width: 1280px;
             margin: 0 auto;
         }
 
-        /* Header */
-        .header {
-            background: white;
-            border-radius: 28px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            text-align: center;
+        /* Header korporat - ringkas, elegan */
+        .official-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 16px 28px;
+            border-radius: 16px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
         }
-
-        h1 {
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .brand-logo {
+            background: #0b3b2f;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: #d4af37;
+            font-family: monospace;
+        }
+        .brand-text h1 {
             font-size: 1.6rem;
-            color: #2d6a4f;
-            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #0b3b2f;
         }
-
-        .date-range {
-            background: #e9f5ef;
-            padding: 10px;
-            border-radius: 20px;
-            margin: 12px 0;
+        .brand-text p {
+            font-size: 0.7rem;
+            color: #5a6e6a;
             font-weight: 500;
         }
-
-        .stats-badge {
-            display: flex;
-            justify-content: space-around;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .stat-card {
+        .badge-official {
             background: #f8f9fa;
-            padding: 10px 15px;
-            border-radius: 20px;
-            flex: 1;
-            min-width: 80px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #2d6a4f;
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: #5e6e5c;
-        }
-
-        /* Progress bar */
-        .progress-section {
-            background: white;
-            border-radius: 24px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .progress-bar-container {
-            background: #e0e7e3;
+            padding: 6px 18px;
             border-radius: 30px;
-            height: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2c5a4a;
+            border: 1px solid #d0dfd9;
+        }
+
+        /* ADMIN DASHBOARD SECTION - di atas sekali, kemas, ringkas */
+        .admin-dashboard-section {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+            margin-bottom: 32px;
+            border: 1px solid #e9edf2;
             overflow: hidden;
-            margin: 10px 0;
         }
-
-        .progress-fill {
-            background: linear-gradient(90deg, #40916c, #2d6a4f);
-            width: 0%;
-            height: 100%;
-            border-radius: 30px;
-            transition: width 0.3s ease;
-        }
-
-        /* Hari selector */
-        .day-selector {
-            background: white;
-            border-radius: 24px;
-            padding: 15px;
-            margin-bottom: 20px;
+        .admin-header {
+            background: #f9fbfa;
+            padding: 16px 28px;
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
-
-        .day-nav {
+        .admin-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0b3b2f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .admin-lock {
             display: flex;
             gap: 12px;
             align-items: center;
         }
-
-        .nav-btn {
-            background: #2d6a4f;
+        .admin-lock input {
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            background: white;
+        }
+        .btn-unlock {
+            background: #0b3b2f;
             color: white;
             border: none;
-            width: 40px;
-            height: 40px;
+            padding: 8px 20px;
             border-radius: 40px;
-            font-size: 1.2rem;
+            font-weight: 600;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: 0.2s;
         }
-
-        .nav-btn:hover {
-            background: #1b4d3e;
+        .btn-unlock:hover {
+            background: #1f5a49;
         }
-
-        #currentDayDisplay {
-            font-weight: bold;
-            background: #e9f5ef;
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-        }
-
-        .reset-day-btn {
-            background: #e9ecef;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        /* Checklist */
-        .checklist {
-            background: white;
-            border-radius: 28px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-
-        .category {
-            margin-bottom: 24px;
-            border-bottom: 1px solid #e0e7e3;
-            padding-bottom: 16px;
-        }
-
-        .category:last-child {
-            border-bottom: none;
-        }
-
-        .category-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: #2d6a4f;
-            margin-bottom: 12px;
+        .dashboard-stats {
+            padding: 20px 28px;
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-wrap: wrap;
+            gap: 20px;
+            border-bottom: 1px solid #edf2f7;
         }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 8px;
-            border-bottom: 1px solid #f0f2f1;
-            gap: 12px;
-        }
-
-        .task-item:last-child {
-            border-bottom: none;
-        }
-
-        .task-checkbox {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            accent-color: #2d6a4f;
-        }
-
-        .task-name {
+        .stat-card-mini {
             flex: 1;
-            font-size: 1rem;
+            min-width: 150px;
+            background: #fefcf8;
+            padding: 14px 18px;
+            border-radius: 20px;
+            border-left: 4px solid #d4af37;
         }
-
-        .task-name.completed {
-            text-decoration: line-through;
-            color: #8b9a8a;
+        .stat-card-mini h4 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5b7c6e;
+            margin-bottom: 6px;
         }
-
-        /* Action buttons */
-        .action-buttons {
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1f3e35;
+        }
+        .chart-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            padding: 20px 28px;
+            background: #ffffff;
+        }
+        .chart-box {
+            flex: 1;
+            min-width: 240px;
+            background: #fefefe;
+            border-radius: 20px;
+            padding: 12px;
+        }
+        canvas {
+            max-height: 200px;
+            width: 100%;
+        }
+        .admin-table-wrapper {
+            padding: 0 28px 24px 28px;
+        }
+        .admin-table-wrapper h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2c5a4a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #1f3e35;
+        }
+        .filter-month {
             display: flex;
             gap: 12px;
-            margin-bottom: 20px;
+            align-items: center;
+            margin-bottom: 16px;
             flex-wrap: wrap;
         }
-
-        .btn-primary {
-            background: #2d6a4f;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            flex: 1;
-            font-size: 0.9rem;
-        }
-
-        .btn-secondary {
-            background: #e9ecef;
-            color: #2d6a4f;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        /* Result section */
-        .result-card {
-            background: white;
-            border-radius: 28px;
-            padding: 20px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-
-        .result-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #1f4d3a;
-            text-align: center;
-        }
-
-        .consistency-score {
-            text-align: center;
-            margin: 15px 0;
-        }
-
-        .score-circle {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto;
-            background: #e9f5ef;
-            border-radius: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .score-number {
-            font-size: 2.4rem;
-            font-weight: bold;
-            color: #2d6a4f;
-        }
-
-        .verdict {
-            text-align: center;
-            font-size: 1rem;
-            padding: 12px;
-            border-radius: 40px;
-            margin-top: 12px;
-            background: #f8f9fa;
-        }
-
-        .week-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            margin: 20px 0;
-        }
-
-        .day-box {
-            text-align: center;
+        .btn-small {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            padding: 5px 14px;
+            border-radius: 30px;
             font-size: 0.7rem;
-            padding: 8px 4px;
-            border-radius: 12px;
-            background: #f1f3f2;
+            cursor: pointer;
         }
 
-        .day-box.completed {
-            background: #2d6a4f;
+        /* BORANG FORMAL */
+        .form-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+            padding: 32px 34px;
+            border: 1px solid #e9edf2;
+        }
+        .form-title {
+            margin-bottom: 28px;
+            border-left: 5px solid #d4af37;
+            padding-left: 20px;
+        }
+        .form-title h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a3a30;
+        }
+        .form-title p {
+            color: #5f7a70;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+        .row-2col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .field label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #2f5d4c;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .field input, .field select {
+            padding: 12px 16px;
+            border: 1px solid #cfdfd8;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            background: white;
+            transition: 0.2s;
+        }
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 2px rgba(212,175,55,0.2);
+        }
+        .product-entry {
+            background: #fafcfb;
+            border-radius: 20px;
+            padding: 20px 22px;
+            margin-bottom: 18px;
+            border: 1px solid #e6efea;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            align-items: flex-end;
+        }
+        .flex-field {
+            flex: 1;
+            min-width: 150px;
+        }
+        .remove-btn {
+            background: #fff4f0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #b1624b;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .btn-add {
+            background: transparent;
+            border: 1.5px dashed #b9cfc5;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            margin: 10px 0 20px;
+            cursor: pointer;
+            color: #2f5d4c;
+        }
+        .btn-submit {
+            background: #0b3b2f;
             color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            float: right;
         }
-
-        .day-box.partial {
-            background: #ffcd94;
-        }
-
         hr {
-            margin: 15px 0;
-            border-color: #e0e7e3;
+            margin: 16px 0;
+            border-color: #ecf3ef;
         }
-
         footer {
             text-align: center;
-            color: #d0e2d4;
             font-size: 0.7rem;
-            margin-top: 20px;
+            color: #8ba39a;
+            margin-top: 32px;
+        }
+        @media (max-width: 700px) {
+            body { padding: 20px 16px; }
+            .form-card { padding: 20px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <h1>📋 Tracker Konsistensi Amalan</h1>
-        <div class="date-range" id="dateRangeDisplay"></div>
-        <div class="stats-badge">
-            <div class="stat-card">
-                <div class="stat-number" id="totalDaysCount">0</div>
-                <div class="stat-label">Hari Dilalui</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalTasksCompleted">0</div>
-                <div class="stat-label">Jumlah Task Selesai</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="avgConsistency">0%</div>
-                <div class="stat-label">Purata Konsisten</div>
+    <!-- Header Rasmi NCIG Malaysia -->
+    <div class="official-header">
+        <div class="brand">
+            <div class="brand-logo">NCIG</div>
+            <div class="brand-text">
+                <h1>NCIG MALAYSIA</h1>
+                <p>Warranty & Quality Assurance · Official Claim Form</p>
             </div>
         </div>
+        <div class="badge-official">⚙️ Sistem Waranti Rasmi v2.0</div>
     </div>
 
-    <div class="progress-section">
-        <div style="display: flex; justify-content: space-between;">
-            <span>📆 Progress 90 Hari</span>
-            <span id="progressPercentLabel">0%</span>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-    </div>
-
-    <div class="day-selector">
-        <div class="day-nav">
-            <button class="nav-btn" id="prevDayBtn">◀</button>
-            <span id="currentDayDisplay">Hari 1</span>
-            <button class="nav-btn" id="nextDayBtn">▶</button>
-        </div>
-        <button class="reset-day-btn" id="resetDayBtn">↺ Reset Hari Ini</button>
-    </div>
-
-    <div class="checklist" id="checklistContainer">
-        <!-- Tasks akan dijana dengan JS -->
-    </div>
-
-    <div class="action-buttons">
-        <button class="btn-primary" id="saveDayBtn">💾 Simpan Hari Ini</button>
-        <button class="btn-secondary" id="viewResultBtn">📊 Lihat Keputusan Konsistensi</button>
-    </div>
-
-    <div class="result-card" id="resultPanel" style="display: none;">
-        <div class="result-title">📈 Laporan Konsistensi 3 Bulan</div>
-        <div class="consistency-score">
-            <div class="score-circle">
-                <span class="score-number" id="overallScore">0%</span>
-                <span style="font-size: 0.7rem;">Konsisten</span>
+    <!-- ===================== ADMIN DASHBOARD (DI ATAS SEKALI) ===================== -->
+    <div class="admin-dashboard-section" id="adminSection">
+        <div class="admin-header">
+            <h2>📊 Laporan Pintar & Graf <span style="font-size:0.7rem; background:#eef2f0; padding:2px 10px; border-radius:20px;">Admin</span></h2>
+            <div class="admin-lock">
+                <input type="password" id="adminPassInput" placeholder="Kata Laluan Admin" autocomplete="off">
+                <button id="unlockAdminBtn" class="btn-unlock">🔓 Akses Dashboard</button>
             </div>
         </div>
-        <div id="verdictText" class="verdict"></div>
-        <hr>
-        <div><strong>✅ Analisis:</strong> <span id="analysisDetail"></span></div>
-        <div style="margin-top: 12px;"><strong>📅 Ringkasan Mingguan (terkini):</strong></div>
-        <div id="weeklySummary" class="week-grid"></div>
-        <button id="closeResultBtn" style="margin-top: 12px; background: none; border: 1px solid #2d6a4f; padding: 6px; border-radius: 40px; width: 100%; cursor: pointer;">Tutup</button>
+        <div id="adminDashboardPanel" style="display: none;">
+            <!-- Statistik ringkas -->
+            <div class="dashboard-stats">
+                <div class="stat-card-mini"><h4>Jumlah Tuntutan</h4><div class="stat-number" id="totalClaimsStat">0</div></div>
+                <div class="stat-card-mini"><h4>Top Defect</h4><div class="stat-number" id="topDefectStat" style="font-size:1.2rem;">-</div></div>
+                <div class="stat-card-mini"><h4>Produk Bermasalah</h4><div class="stat-number" id="topProductStat" style="font-size:1.2rem;">-</div></div>
+            </div>
+            <!-- Filter bulan -->
+            <div style="padding: 0 28px; margin-top: 6px;">
+                <div class="filter-month">
+                    <label style="font-size:0.75rem; font-weight:600;">📅 Tapis Bulan :</label>
+                    <input type="month" id="monthFilterAdmin" style="padding:6px 12px; border-radius:30px; border:1px solid #ccc;">
+                    <button id="resetMonthAdminBtn" class="btn-small">Reset</button>
+                </div>
+            </div>
+            <!-- Graf bar dan pie -->
+            <div class="chart-row">
+                <div class="chart-box"><canvas id="defectBarChart" width="400" height="180"></canvas></div>
+                <div class="chart-box"><canvas id="productPieChart" width="400" height="180"></canvas></div>
+            </div>
+            <!-- Jadual batch & defect -->
+            <div class="admin-table-wrapper">
+                <h4>📋 Senarai Waranti (mengikut bulan terpilih)</h4>
+                <div style="overflow-x: auto;">
+                    <table id="warrantyTable">
+                        <thead><tr><th>Tarikh</th><th>Nama</th><th>Produk</th><th>Varian</th><th>Batch</th><th>Defect</th></tr></thead>
+                        <tbody id="warrantyTableBody"><tr><td colspan="6">Klik 'Akses Dashboard' untuk paparan</td></tr></tbody>
+                    </table>
+                </div>
+                <h4 style="margin-top: 24px;">📦 Analisis Batch & Defect Kerap</h4>
+                <div style="overflow-x: auto;">
+                    <table id="batchTable">
+                        <thead><tr><th>Product</th><th>Varian</th><th>Batch Number</th><th>Defect Paling Kerap</th><th>Kes</th></tr></thead>
+                        <tbody id="batchTableBody"><tr><td colspan="5">-</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <footer>Konsisten setiap hari = kemenangan. Istiqamah! 🌟</footer>
+
+    <!-- ===================== BORANG WARANTI FORMAL ===================== -->
+    <div class="form-card">
+        <div class="form-title">
+            <h2>Borang Tuntutan Waranti NCIG</h2>
+            <p>Sila isi maklumat peribadi dan senaraikan setiap produk yang mempunyai kecacatan (defect). Setiap produk perlu disertakan nombor Batch untuk tujuan analisa kualiti.</p>
+        </div>
+        <form id="warrantyForm">
+            <div class="row-2col">
+                <div class="field"><label>Nama Penuh</label><input type="text" id="fullName" placeholder="cth: Ahmad Faiz Bin Abdullah" required></div>
+                <div class="field"><label>Nombor Telefon</label><input type="tel" id="phoneNumber" placeholder="012-3456789" required></div>
+                <div class="field"><label>Emel</label><input type="email" id="emailAddress" placeholder="nama@ncig.com.my" required></div>
+                <div class="field"><label>Tarikh Waranti</label><input type="date" id="warrantyDateForm" required></div>
+            </div>
+            <div style="margin: 10px 0 6px;"><strong style="color:#1f4d3e;">🛠 Senarai Produk Bermasalah</strong></div>
+            <div id="productListContainer"></div>
+            <button type="button" id="addProductBtnForm" class="btn-add">+ Tambah Produk (dengan batch & defect)</button>
+            <hr>
+            <button type="submit" class="btn-submit">Hantar Tuntutan Waranti</button>
+            <div style="clear:both"></div>
+        </form>
+    </div>
+    <footer>© NCIG Malaysia - Data waranti disimpan untuk tujuan jaminan kualiti. Semua tuntutan direkod secara setempat.</footer>
 </div>
 
 <script>
-    // Definisi amalan harian
-    const TASKS = [
-        { id: "subuh", name: "🕌 Solat Subuh", category: "Solat Fardhu" },
-        { id: "zohor", name: "🕌 Solat Zohor", category: "Solat Fardhu" },
-        { id: "asar", name: "🕌 Solat Asar", category: "Solat Fardhu" },
-        { id: "magrib", name: "🕌 Solat Magrib", category: "Solat Fardhu" },
-        { id: "isyak", name: "🕌 Solat Isyak", category: "Solat Fardhu" },
-        { id: "sunat_subuh", name: "🌟 Solat Sunat Sebelum Subuh (2 rakaat)", category: "Solat Sunat" },
-        { id: "dhuha", name: "☀️ Solat Dhuha", category: "Solat Sunat" },
-        { id: "waqiah", name: "📖 Baca Surah Al-Waqiah (1 kali)", category: "Bacaan Al-Quran" },
-        { id: "yasin", name: "📖 Baca Surah Yasin", category: "Bacaan Al-Quran" }
+    // ======================= DATA & STORAGE =======================
+    let warrantyClaims = [];      // setiap claim: { id, name, phone, email, date, items: [{product, variant, batch, defect}] }
+    
+    // Product & variant mapping (seperti spec)
+    const productVariants = {
+        "NCIG PRO": ["Glacier", "Embered", "Pine", "Kendal", "Midnight", "Ncig Pro One Million", "Suzuka Yellow", "Sepang White", "Sangria", "Sage", "Tiffany", "Merdeka Edition"],
+        "NCIG ONE": ["Obsidian", "Pacific", "Scarlet"],
+        "NCIG CUBE": ["Ocean", "Ash", "Sky", "Slate", "Lava", "Neon"],
+        "NPOD PRO": ["Tobacco (Red)", "Banana Vanilla", "Tobacco (White)", "Pecan", "Berry Toast", "Coffee", "Grape", "Lemon", "Keladi", "Mango", "Berry", "Mint", "Strawberry", "Tea", "Plum", "Vanilla", "Watermelon Mint", "Guava"]
+    };
+    const defectList = [
+        "Activation Failure", "Automatic Activation", "Burnt", "Intermittent Firing", "Leaking", "Led",
+        "No Vibration", "Not able to charge", "Npod not detected", "Pin damage/stuck in", "Spitting",
+        "Tasteless", "Weird Taste", "Assembly Issues"
     ];
-
-    // Tarikh mula: esok
-    let startDate = new Date();
-    startDate.setDate(startDate.getDate() + 1);
-    startDate.setHours(0, 0, 0, 0);
     
-    const TOTAL_DAYS = 90;
-    let currentDayIndex = 0; // 0-based, hari ke-1 = index 0
-    let allData = []; // array untuk 90 hari, setiap hari: { dateStr, tasks: { taskId: boolean } }
-    
-    // Initialize data dari localStorage atau baru
-    function loadData() {
-        const saved = localStorage.getItem("amalan_tracker_90");
-        if(saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                if(parsed.startDate && parsed.data && parsed.data.length === TOTAL_DAYS) {
-                    startDate = new Date(parsed.startDate);
-                    allData = parsed.data;
-                    return;
-                }
-            } catch(e) {}
-        }
-        // Init baru
-        initFreshData();
+    // Load / save localStorage
+    function loadClaims() {
+        const stored = localStorage.getItem("ncig_formal_warranty");
+        if(stored) warrantyClaims = JSON.parse(stored);
+        else warrantyClaims = [];
+        if(warrantyClaims.length === 0) seedSampleData();
+    }
+    function saveClaims() { localStorage.setItem("ncig_formal_warranty", JSON.stringify(warrantyClaims)); }
+    function seedSampleData() {
+        const today = new Date().toISOString().split('T')[0];
+        warrantyClaims = [
+            { id: "seed1", name: "Muhammad Danish", phone: "0198765432", email: "danish@ncig.com", date: today, items: [{ product: "NCIG PRO", variant: "Glacier", batch: "BATCH-P01", defect: "Leaking" }] },
+            { id: "seed2", name: "Nur Aisyah", phone: "0112233445", email: "aisyah@ncig.com", date: today, items: [{ product: "NPOD PRO", variant: "Mango", batch: "NPOD-M05", defect: "Tasteless" },{ product: "NCIG CUBE", variant: "Ocean", batch: "CUBE-A2", defect: "No Vibration" }] },
+            { id: "seed3", name: "Rizman Haikal", phone: "0178899001", email: "rizman@ncig.com", date: "2025-03-10", items: [{ product: "NCIG ONE", variant: "Obsidian", batch: "ONE-99X", defect: "Activation Failure" }] }
+        ];
+        saveClaims();
     }
     
-    function initFreshData() {
-        allData = [];
-        const todayRef = new Date();
-        todayRef.setHours(0,0,0,0);
-        for(let i = 0; i < TOTAL_DAYS; i++) {
-            const currentDate = new Date(startDate);
-            currentDate.setDate(startDate.getDate() + i);
-            const tasksObj = {};
-            TASKS.forEach(task => { tasksObj[task.id] = false; });
-            allData.push({
-                dateStr: currentDate.toISOString().split('T')[0],
-                tasks: tasksObj
-            });
-        }
-        saveToLocal();
-    }
+    // Helper generate ID
+    function genId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 6); }
     
-    function saveToLocal() {
-        const toStore = {
-            startDate: startDate.toISOString(),
-            data: allData
+    // ---------- DYNAMIC ROW PRODUK (borang formal) ----------
+    let rowCounter = 0;
+    function createProductRow() {
+        const rowId = `prod_${Date.now()}_${rowCounter++}`;
+        const productOptions = Object.keys(productVariants).map(p => `<option value="${p}">${p}</option>`).join('');
+        const defectOptionsHtml = defectList.map(d => `<option value="${d}">${d}</option>`).join('');
+        const div = document.createElement('div');
+        div.className = 'product-entry';
+        div.setAttribute('data-rowid', rowId);
+        div.innerHTML = `
+            <div class="flex-row">
+                <div class="flex-field"><label style="font-size:0.7rem;">Produk</label><select class="prod-select" data-id="${rowId}">${productOptions}</select></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Varian / Rasa</label><select class="variant-select" data-id="${rowId}"><option value="">--Pilih--</option></select></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" placeholder="cth: BATCH-2409" required></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Defect</label><select class="defect-select" data-id="${rowId}">${defectOptionsHtml}</select></div>
+                <div><button type="button" class="remove-btn" data-id="${rowId}">Buang</button></div>
+            </div>
+        `;
+        const prodSel = div.querySelector('.prod-select');
+        const varSel = div.querySelector('.variant-select');
+        const updateVariants = () => {
+            const selectedProd = prodSel.value;
+            const variants = productVariants[selectedProd] || [];
+            varSel.innerHTML = '<option value="">--Pilih Varian--</option>' + variants.map(v => `<option value="${v}">${v}</option>`).join('');
         };
-        localStorage.setItem("amalan_tracker_90", JSON.stringify(toStore));
+        prodSel.addEventListener('change', updateVariants);
+        updateVariants();
+        div.querySelector('.remove-btn').addEventListener('click', () => div.remove());
+        return div;
     }
     
-    // Dapatkan data hari berdasarkan index
-    function getCurrentDayData() {
-        return allData[currentDayIndex];
-    }
+    function renderProductRows() { const container = document.getElementById('productListContainer'); if(container.children.length === 0) container.appendChild(createProductRow()); }
     
-    function updateUIForCurrentDay() {
-        const dayData = getCurrentDayData();
-        const dayNumber = currentDayIndex + 1;
-        const dateObj = new Date(startDate);
-        dateObj.setDate(startDate.getDate() + currentDayIndex);
-        const formattedDate = dateObj.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById("currentDayDisplay").innerHTML = `Hari ${dayNumber} · ${formattedDate}`;
-        
-        // Render checklist
-        renderChecklist(dayData.tasks);
-        updateOverallStats();
-        updateProgressBar();
-    }
-    
-    function renderChecklist(tasksStatus) {
-        const container = document.getElementById("checklistContainer");
-        // group by category
-        const categories = {};
-        TASKS.forEach(task => {
-            if(!categories[task.category]) categories[task.category] = [];
-            categories[task.category].push(task);
+    // Submit borang waranti
+    function handleSubmit(e) {
+        e.preventDefault();
+        const name = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phoneNumber').value.trim();
+        const email = document.getElementById('emailAddress').value.trim();
+        const date = document.getElementById('warrantyDateForm').value;
+        if(!name || !phone || !email || !date) { alert("Sila lengkapkan semua maklumat peribadi."); return; }
+        const rows = document.querySelectorAll('#productListContainer .product-entry');
+        if(rows.length === 0) { alert("Sila tambah sekurang-kurangnya satu produk bermasalah."); return; }
+        let items = [], valid = true;
+        rows.forEach(row => {
+            const product = row.querySelector('.prod-select').value;
+            const variant = row.querySelector('.variant-select').value;
+            const batch = row.querySelector('.batch-input').value.trim();
+            const defect = row.querySelector('.defect-select').value;
+            if(!product || !variant || !batch || !defect) { valid = false; alert("Setiap produk mesti lengkap: Product, Varian, Batch & Defect."); return; }
+            items.push({ product, variant, batch, defect });
         });
-        
-        let html = "";
-        for(let cat in categories) {
-            html += `<div class="category"><div class="category-title">📌 ${cat}</div>`;
-            categories[cat].forEach(task => {
-                const isChecked = tasksStatus[task.id] === true;
-                const completedClass = isChecked ? "completed" : "";
-                html += `
-                    <div class="task-item">
-                        <input type="checkbox" class="task-checkbox" data-task-id="${task.id}" ${isChecked ? "checked" : ""}>
-                        <span class="task-name ${completedClass}">${task.name}</span>
-                    </div>
-                `;
-            });
-            html += `</div>`;
-        }
-        container.innerHTML = html;
-        
-        // attach event listeners to checkboxes
-        document.querySelectorAll('.task-checkbox').forEach(cb => {
-            cb.addEventListener('change', (e) => {
-                const taskId = cb.dataset.taskId;
-                const dayData = getCurrentDayData();
-                dayData.tasks[taskId] = cb.checked;
-                // update visual text style
-                const taskSpan = cb.parentElement.querySelector('.task-name');
-                if(cb.checked) taskSpan.classList.add('completed');
-                else taskSpan.classList.remove('completed');
-                saveToLocal();
-                updateOverallStats();
-                updateProgressBar();
-            });
+        if(!valid) return;
+        const newClaim = { id: genId(), name, phone, email, date, items };
+        warrantyClaims.unshift(newClaim);
+        saveClaims();
+        alert("Tuntutan waranti berjaya dihantar. Terima kasih.");
+        document.getElementById('warrantyForm').reset();
+        document.getElementById('productListContainer').innerHTML = '';
+        renderProductRows();
+        document.getElementById('warrantyDateForm').valueAsDate = new Date();
+        // Jika admin dashboard sedang terbuka, refresh data
+        if(adminUnlocked && document.getElementById('adminDashboardPanel').style.display === 'block') refreshAdminDashboard();
+    }
+    
+    // ======================= ADMIN DASHBOARD + GRAF =======================
+    let adminUnlocked = false;
+    let defectChart, productChart;
+    
+    function refreshAdminDashboard() {
+        if(!adminUnlocked) return;
+        const monthVal = document.getElementById('monthFilterAdmin').value;
+        let filteredClaims = [...warrantyClaims];
+        if(monthVal) filteredClaims = filteredClaims.filter(c => c.date && c.date.startsWith(monthVal));
+        // flatten items
+        let flatItems = [];
+        filteredClaims.forEach(claim => {
+            claim.items.forEach(it => { flatItems.push({ date: claim.date, name: claim.name, product: it.product, variant: it.variant, batch: it.batch, defect: it.defect }); });
         });
-    }
-    
-    function updateOverallStats() {
-        let totalCompletedTasks = 0;
-        let totalPossibleTasks = 0;
-        let daysWithData = 0;
-        for(let i = 0; i <= currentDayIndex; i++) {
-            const day = allData[i];
-            const tasksObj = day.tasks;
-            const taskValues = Object.values(tasksObj);
-            const completedCount = taskValues.filter(v => v === true).length;
-            totalCompletedTasks += completedCount;
-            totalPossibleTasks += TASKS.length;
-            if(completedCount > 0 || i <= currentDayIndex) daysWithData++;
-        }
-        // untuk hari2 selepas currentDayIndex tidak dikira dalam purata
-        const avgPercentage = totalPossibleTasks > 0 ? Math.round((totalCompletedTasks / totalPossibleTasks) * 100) : 0;
-        document.getElementById("totalTasksCompleted").innerText = totalCompletedTasks;
-        document.getElementById("avgConsistency").innerText = `${avgPercentage}%`;
-        const daysPassed = currentDayIndex + 1;
-        document.getElementById("totalDaysCount").innerText = daysPassed;
-    }
-    
-    function updateProgressBar() {
-        const daysDone = currentDayIndex + 1;
-        const percent = Math.min(100, Math.round((daysDone / TOTAL_DAYS) * 100));
-        document.getElementById("progressFill").style.width = `${percent}%`;
-        document.getElementById("progressPercentLabel").innerText = `${percent}%`;
-    }
-    
-    function saveCurrentDay() {
-        saveToLocal();
-        alert("✅ Data hari ini disimpan! Teruskan istiqamah.");
-        updateOverallStats();
-    }
-    
-    function showResult() {
-        // Kira konsistensi sepanjang hari yang telah dilalui (hari 1 hingga hari ke-(currentDayIndex+1))
-        let totalDaysTracked = currentDayIndex + 1;
-        let perfectDays = 0;
-        let totalTasksDoneAll = 0;
-        let dailyScores = [];
-        for(let i = 0; i <= currentDayIndex; i++) {
-            const day = allData[i];
-            const tasksArr = Object.values(day.tasks);
-            const doneCount = tasksArr.filter(v => v === true).length;
-            const percentageDay = (doneCount / TASKS.length) * 100;
-            dailyScores.push(percentageDay);
-            totalTasksDoneAll += doneCount;
-            if(percentageDay === 100) perfectDays++;
-        }
-        const totalPossibleTasks = totalDaysTracked * TASKS.length;
-        const overallPercent = totalPossibleTasks > 0 ? Math.round((totalTasksDoneAll / totalPossibleTasks) * 100) : 0;
+        const uniqueClaimCount = new Set(filteredClaims.map(c => c.id)).size;
+        document.getElementById('totalClaimsStat').innerText = uniqueClaimCount;
         
-        let verdict = "";
-        let analysisMsg = "";
-        if(overallPercent >= 90) {
-            verdict = "🏆 Tahniah! Anda SANGAT KONSISTEN! Teruskan momentum ini. Anda serius dan komited!";
-            analysisMsg = `Anda konsisten ${overallPercent}% sepanjang ${totalDaysTracked} hari. ${perfectDays} hari sempurna (100%). Luar biasa!`;
-        } else if(overallPercent >= 70) {
-            verdict = "👍 Bagus! Konsistensi anda baik. Tingkatkan lagi untuk capai 90% ke atas.";
-            analysisMsg = `Purata konsisten ${overallPercent}%. ${perfectDays} hari penuh. Fokus pada task yang terlepas.`;
-        } else if(overallPercent >= 50) {
-            verdict = "⚡ Sederhana. Masih ada ruang untuk perbaiki. Jangan putus asa!";
-            analysisMsg = `Konsisten ${overallPercent}%. Cuba buat checklist harian tanpa tinggal.`;
-        } else {
-            verdict = "🌱 Masih awal atau kurang konsisten. Mulakan niat baru, esok lebih baik!";
-            analysisMsg = `Kadar konsisten ${overallPercent}%. Tetapkan target minima 5 task sehari. Anda pasti mampu!`;
+        // top defect
+        const defectCount = new Map();
+        flatItems.forEach(i => defectCount.set(i.defect, (defectCount.get(i.defect)||0)+1));
+        let topDefectName = "-", maxD=0;
+        for(let [d,c] of defectCount.entries()) if(c>maxD) { maxD=c; topDefectName=d; }
+        document.getElementById('topDefectStat').innerHTML = topDefectName !== "-" ? `${topDefectName} (${maxD})` : "-";
+        
+        const productCount = new Map();
+        flatItems.forEach(i => productCount.set(i.product, (productCount.get(i.product)||0)+1));
+        let topProdName = "-", maxP=0;
+        for(let [p,c] of productCount.entries()) if(c>maxP) { maxP=c; topProdName=p; }
+        document.getElementById('topProductStat').innerHTML = topProdName !== "-" ? `${topProdName} (${maxP})` : "-";
+        
+        // Jadual waranti
+        const tableBody = document.getElementById('warrantyTableBody');
+        if(flatItems.length === 0) tableBody.innerHTML = '<tr><td colspan="6">Tiada rekod untuk bulan dipilih</td></tr>';
+        else {
+            tableBody.innerHTML = flatItems.map(i => `<tr><td>${i.date||'-'}</td><td>${escapeHtml(i.name)}</td><td>${i.product}</td><td>${i.variant}</td><td>${i.batch}</td><td>${i.defect}</td></tr>`).join('');
         }
         
-        document.getElementById("overallScore").innerText = `${overallPercent}%`;
-        document.getElementById("verdictText").innerHTML = verdict;
-        document.getElementById("analysisDetail").innerHTML = analysisMsg;
+        // Batch Analysis
+        const batchMap = new Map();
+        flatItems.forEach(i => {
+            const key = `${i.product}|${i.variant}|${i.batch}`;
+            if(!batchMap.has(key)) batchMap.set(key, { product:i.product, variant:i.variant, batch:i.batch, defects:[] });
+            batchMap.get(key).defects.push(i.defect);
+        });
+        const batchTbody = document.getElementById('batchTableBody');
+        if(batchMap.size===0) batchTbody.innerHTML = '<tr><td colspan="5">Tiada data batch</td></tr>';
+        else {
+            let rowsHtml = '';
+            for(let entry of batchMap.values()) {
+                const freq = new Map();
+                entry.defects.forEach(d => freq.set(d, (freq.get(d)||0)+1));
+                let topBatchDefect="", topFreq=0;
+                for(let [d,f] of freq) if(f>topFreq) { topFreq=f; topBatchDefect=d; }
+                rowsHtml += `<tr><td>${entry.product}</td><td>${entry.variant}</td><td>${entry.batch}</td><td>${topBatchDefect} (${topFreq})</td><td>${entry.defects.length}</td></tr>`;
+            }
+            batchTbody.innerHTML = rowsHtml;
+        }
         
-        // weekly summary last 2 weeks
-        const startWeekIndex = Math.max(0, currentDayIndex - 13);
-        const weekArray = [];
-        for(let i = startWeekIndex; i <= currentDayIndex; i++) {
-            const day = allData[i];
-            const tasksArr = Object.values(day.tasks);
-            const doneCount = tasksArr.filter(v => v === true).length;
-            const percentDay = doneCount / TASKS.length;
-            let statusClass = "day-box";
-            if(percentDay === 1) statusClass += " completed";
-            else if(percentDay >= 0.5) statusClass += " partial";
-            weekArray.push({ dayNum: i+1, percent: percentDay, class: statusClass });
-        }
-        const weeklyContainer = document.getElementById("weeklySummary");
-        weeklyContainer.innerHTML = weekArray.map(w => `<div class="${w.class}">H${w.dayNum}<br>${Math.round(w.percent*100)}%</div>`).join('');
+        // GRAF 1: Defect chart (top 5)
+        const sortedDef = Array.from(defectCount.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const labelsDef = sortedDef.map(d=>d[0]);
+        const dataDef = sortedDef.map(d=>d[1]);
+        if(defectChart) defectChart.destroy();
+        const ctxBar = document.getElementById('defectBarChart').getContext('2d');
+        defectChart = new Chart(ctxBar, { type: 'bar', data: { labels: labelsDef, datasets: [{ label: 'Bilangan Kes', data: dataDef, backgroundColor: '#d4af37', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } } });
         
-        document.getElementById("resultPanel").style.display = "block";
-        document.getElementById("resultPanel").scrollIntoView({ behavior: 'smooth' });
+        // GRAF 2: Produk pie
+        const prodArr = Array.from(productCount.entries());
+        if(productChart) productChart.destroy();
+        const ctxPie = document.getElementById('productPieChart').getContext('2d');
+        productChart = new Chart(ctxPie, { type: 'pie', data: { labels: prodArr.map(p=>p[0]), datasets: [{ data: prodArr.map(p=>p[1]), backgroundColor: ['#0b3b2f','#d4af37','#7c9e8c','#b68b40','#4a7765'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
     }
     
-    // navigation
-    function goPrevDay() {
-        if(currentDayIndex > 0) {
-            currentDayIndex--;
-            updateUIForCurrentDay();
-        } else {
-            alert("Ini adalah hari pertama.");
-        }
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    
+    function unlockAdmin() {
+        const pwd = document.getElementById('adminPassInput').value;
+        if(pwd === "admin123") {
+            adminUnlocked = true;
+            document.getElementById('adminDashboardPanel').style.display = 'block';
+            refreshAdminDashboard();
+        } else { alert("Kata laluan admin salah. Akses ditolak."); adminUnlocked=false; document.getElementById('adminDashboardPanel').style.display='none'; }
     }
     
-    function goNextDay() {
-        if(currentDayIndex < TOTAL_DAYS - 1) {
-            currentDayIndex++;
-            updateUIForCurrentDay();
-        } else {
-            alert("Anda sudah mencapai hari ke-90. Tahniah!");
-        }
-    }
-    
-    function resetCurrentDay() {
-        if(confirm("Reset semua checklist untuk hari ini? Tindakan ini akan membatalkan semua tick.")) {
-            const dayData = getCurrentDayData();
-            TASKS.forEach(task => { dayData.tasks[task.id] = false; });
-            saveToLocal();
-            updateUIForCurrentDay();
-            updateOverallStats();
-            updateProgressBar();
-        }
-    }
-    
-    // set date range display
-    function updateDateRange() {
-        const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + TOTAL_DAYS - 1);
-        const startStr = startDate.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
-        const endStr = endDate.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById("dateRangeDisplay").innerHTML = `📅 ${startStr} → ${endStr} (90 hari)`;
-    }
-    
-    // event binding
-    document.getElementById("prevDayBtn").addEventListener("click", goPrevDay);
-    document.getElementById("nextDayBtn").addEventListener("click", goNextDay);
-    document.getElementById("resetDayBtn").addEventListener("click", resetCurrentDay);
-    document.getElementById("saveDayBtn").addEventListener("click", saveCurrentDay);
-    document.getElementById("viewResultBtn").addEventListener("click", showResult);
-    document.getElementById("closeResultBtn").addEventListener("click", () => {
-        document.getElementById("resultPanel").style.display = "none";
-    });
-    
-    // initialize everything
-    loadData();
-    updateDateRange();
-    // pastikan currentDayIndex 0 (start)
-    currentDayIndex = 0;
-    updateUIForCurrentDay();
-    
-    // extra: jika hari esok belum tercapai tapi kita paksa tengok data hari esok juga dibenarkan
-    // semua good
+    // Event listeners
+    window.onload = () => {
+        loadClaims();
+        renderProductRows();
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('warrantyDateForm').value = todayStr;
+        document.getElementById('addProductBtnForm').addEventListener('click', () => document.getElementById('productListContainer').appendChild(createProductRow()));
+        document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
+        document.getElementById('unlockAdminBtn').addEventListener('click', unlockAdmin);
+        document.getElementById('monthFilterAdmin').addEventListener('change', () => { if(adminUnlocked) refreshAdminDashboard(); });
+        document.getElementById('resetMonthAdminBtn').addEventListener('click', () => { document.getElementById('monthFilterAdmin').value = ''; if(adminUnlocked) refreshAdminDashboard(); });
+        adminUnlocked = false;
+        document.getElementById('adminDashboardPanel').style.display = 'none';
+    };
 </script>
 </body>
 </html>
