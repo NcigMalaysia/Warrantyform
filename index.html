@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>NCIG Malaysia - Sistem Waranti Rasmi</title>
-    <!-- Chart.js untuk graf ringan -->
+    <title>NCIG Malaysia - Official Warranty System</title>
+    <!-- Chart.js for lightweight graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
@@ -20,13 +20,13 @@
             color: #1e2a3a;
         }
 
-        /* Container utama - lebar profesional */
+        /* Main container - professional width */
         .container {
             max-width: 1280px;
             margin: 0 auto;
         }
 
-        /* Header korporat - ringkas, elegan */
+        /* Corporate header - clean, elegant */
         .official-header {
             display: flex;
             align-items: center;
@@ -77,7 +77,7 @@
             border: 1px solid #d0dfd9;
         }
 
-        /* ADMIN DASHBOARD SECTION - di atas sekali, kemas, ringkas */
+        /* ADMIN DASHBOARD SECTION - at the top, compact, accessible only to admin */
         .admin-dashboard-section {
             background: #ffffff;
             border-radius: 24px;
@@ -215,7 +215,7 @@
             cursor: pointer;
         }
 
-        /* BORANG FORMAL */
+        /* WARRANTY FORM - Formal & Professional */
         .form-card {
             background: #ffffff;
             border-radius: 24px;
@@ -335,7 +335,7 @@
 </head>
 <body>
 <div class="container">
-    <!-- Header Rasmi NCIG Malaysia -->
+    <!-- Official NCIG Malaysia Header -->
     <div class="official-header">
         <div class="brand">
             <div class="brand-logo">NCIG</div>
@@ -344,51 +344,51 @@
                 <p>Warranty & Quality Assurance · Official Claim Form</p>
             </div>
         </div>
-        <div class="badge-official">⚙️ Sistem Waranti Rasmi v2.0</div>
+        <div class="badge-official">⚙️ Official Warranty System v2.0</div>
     </div>
 
-    <!-- ===================== ADMIN DASHBOARD (DI ATAS SEKALI) ===================== -->
+    <!-- ===================== ADMIN DASHBOARD (ONLY VISIBLE AFTER UNLOCK) ===================== -->
     <div class="admin-dashboard-section" id="adminSection">
         <div class="admin-header">
-            <h2>📊 Laporan Pintar & Graf <span style="font-size:0.7rem; background:#eef2f0; padding:2px 10px; border-radius:20px;">Admin</span></h2>
+            <h2>📊 Smart Report & Graphs <span style="font-size:0.7rem; background:#eef2f0; padding:2px 10px; border-radius:20px;">Admin Only</span></h2>
             <div class="admin-lock">
-                <input type="password" id="adminPassInput" placeholder="Kata Laluan Admin" autocomplete="off">
-                <button id="unlockAdminBtn" class="btn-unlock">🔓 Akses Dashboard</button>
+                <input type="password" id="adminPassInput" placeholder="Admin Password" autocomplete="off">
+                <button id="unlockAdminBtn" class="btn-unlock">🔓 Access Dashboard</button>
             </div>
         </div>
         <div id="adminDashboardPanel" style="display: none;">
-            <!-- Statistik ringkas -->
+            <!-- Quick Stats -->
             <div class="dashboard-stats">
-                <div class="stat-card-mini"><h4>Jumlah Tuntutan</h4><div class="stat-number" id="totalClaimsStat">0</div></div>
+                <div class="stat-card-mini"><h4>Total Claims</h4><div class="stat-number" id="totalClaimsStat">0</div></div>
                 <div class="stat-card-mini"><h4>Top Defect</h4><div class="stat-number" id="topDefectStat" style="font-size:1.2rem;">-</div></div>
-                <div class="stat-card-mini"><h4>Produk Bermasalah</h4><div class="stat-number" id="topProductStat" style="font-size:1.2rem;">-</div></div>
+                <div class="stat-card-mini"><h4>Most Problematic Product</h4><div class="stat-number" id="topProductStat" style="font-size:1.2rem;">-</div></div>
             </div>
-            <!-- Filter bulan -->
+            <!-- Month Filter -->
             <div style="padding: 0 28px; margin-top: 6px;">
                 <div class="filter-month">
-                    <label style="font-size:0.75rem; font-weight:600;">📅 Tapis Bulan :</label>
+                    <label style="font-size:0.75rem; font-weight:600;">📅 Filter by Month :</label>
                     <input type="month" id="monthFilterAdmin" style="padding:6px 12px; border-radius:30px; border:1px solid #ccc;">
                     <button id="resetMonthAdminBtn" class="btn-small">Reset</button>
                 </div>
             </div>
-            <!-- Graf bar dan pie -->
+            <!-- Bar Chart & Pie Chart -->
             <div class="chart-row">
                 <div class="chart-box"><canvas id="defectBarChart" width="400" height="180"></canvas></div>
                 <div class="chart-box"><canvas id="productPieChart" width="400" height="180"></canvas></div>
             </div>
-            <!-- Jadual batch & defect -->
+            <!-- Warranty List Table -->
             <div class="admin-table-wrapper">
-                <h4>📋 Senarai Waranti (mengikut bulan terpilih)</h4>
+                <h4>📋 Warranty Claims List (selected month)</h4>
                 <div style="overflow-x: auto;">
                     <table id="warrantyTable">
-                        <thead><tr><th>Tarikh</th><th>Nama</th><th>Produk</th><th>Varian</th><th>Batch</th><th>Defect</th></tr></thead>
-                        <tbody id="warrantyTableBody"><tr><td colspan="6">Klik 'Akses Dashboard' untuk paparan</td></tr></tbody>
+                        <thead><tr><th>Date</th><th>Customer Name</th><th>Product</th><th>Variant</th><th>Batch No</th><th>Defect</th></tr></thead>
+                        <tbody id="warrantyTableBody"><tr><td colspan="6">Click 'Access Dashboard' to view</td></tr></tbody>
                     </table>
                 </div>
-                <h4 style="margin-top: 24px;">📦 Analisis Batch & Defect Kerap</h4>
+                <h4 style="margin-top: 24px;">📦 Batch Analysis & Most Frequent Defect</h4>
                 <div style="overflow-x: auto;">
                     <table id="batchTable">
-                        <thead><tr><th>Product</th><th>Varian</th><th>Batch Number</th><th>Defect Paling Kerap</th><th>Kes</th></tr></thead>
+                        <thead><tr><th>Product</th><th>Variant</th><th>Batch Number</th><th>Most Frequent Defect</th><th>Total Cases</th></tr></thead>
                         <tbody id="batchTableBody"><tr><td colspan="5">-</td></tr></tbody>
                     </table>
                 </div>
@@ -396,35 +396,35 @@
         </div>
     </div>
 
-    <!-- ===================== BORANG WARANTI FORMAL ===================== -->
+    <!-- ===================== WARRANTY CLAIM FORM (PUBLIC) ===================== -->
     <div class="form-card">
         <div class="form-title">
-            <h2>Borang Tuntutan Waranti NCIG</h2>
-            <p>Sila isi maklumat peribadi dan senaraikan setiap produk yang mempunyai kecacatan (defect). Setiap produk perlu disertakan nombor Batch untuk tujuan analisa kualiti.</p>
+            <h2>NCIG Warranty Claim Form</h2>
+            <p>Please fill in your personal details and list each defective product. Each product must include a batch number for quality analysis.</p>
         </div>
         <form id="warrantyForm">
             <div class="row-2col">
-                <div class="field"><label>Nama Penuh</label><input type="text" id="fullName" placeholder="cth: Ahmad Faiz Bin Abdullah" required></div>
-                <div class="field"><label>Nombor Telefon</label><input type="tel" id="phoneNumber" placeholder="012-3456789" required></div>
-                <div class="field"><label>Emel</label><input type="email" id="emailAddress" placeholder="nama@ncig.com.my" required></div>
-                <div class="field"><label>Tarikh Waranti</label><input type="date" id="warrantyDateForm" required></div>
+                <div class="field"><label>Full Name</label><input type="text" id="fullName" placeholder="e.g. Ahmad Faiz Bin Abdullah" required></div>
+                <div class="field"><label>Phone Number</label><input type="tel" id="phoneNumber" placeholder="012-3456789" required></div>
+                <div class="field"><label>Email</label><input type="email" id="emailAddress" placeholder="name@ncig.com.my" required></div>
+                <div class="field"><label>Warranty Date</label><input type="date" id="warrantyDateForm" required></div>
             </div>
-            <div style="margin: 10px 0 6px;"><strong style="color:#1f4d3e;">🛠 Senarai Produk Bermasalah</strong></div>
+            <div style="margin: 10px 0 6px;"><strong style="color:#1f4d3e;">🛠 Defective Products List</strong></div>
             <div id="productListContainer"></div>
-            <button type="button" id="addProductBtnForm" class="btn-add">+ Tambah Produk (dengan batch & defect)</button>
+            <button type="button" id="addProductBtnForm" class="btn-add">+ Add Product (with batch & defect)</button>
             <hr>
-            <button type="submit" class="btn-submit">Hantar Tuntutan Waranti</button>
+            <button type="submit" class="btn-submit">Submit Warranty Claim</button>
             <div style="clear:both"></div>
         </form>
     </div>
-    <footer>© NCIG Malaysia - Data waranti disimpan untuk tujuan jaminan kualiti. Semua tuntutan direkod secara setempat.</footer>
+    <footer>© NCIG Malaysia - Warranty data is stored locally for quality assurance purposes. All claims are recorded securely.</footer>
 </div>
 
 <script>
-    // ======================= DATA & STORAGE =======================
-    let warrantyClaims = [];      // setiap claim: { id, name, phone, email, date, items: [{product, variant, batch, defect}] }
+    // ======================= DATA MODEL & STORAGE =======================
+    let warrantyClaims = [];      // each claim: { id, name, phone, email, date, items: [{product, variant, batch, defect}] }
     
-    // Product & variant mapping (seperti spec)
+    // Product & variant mapping (as per specification)
     const productVariants = {
         "NCIG PRO": ["Glacier", "Embered", "Pine", "Kendal", "Midnight", "Ncig Pro One Million", "Suzuka Yellow", "Sepang White", "Sangria", "Sage", "Tiffany", "Merdeka Edition"],
         "NCIG ONE": ["Obsidian", "Pacific", "Scarlet"],
@@ -437,14 +437,15 @@
         "Tasteless", "Weird Taste", "Assembly Issues"
     ];
     
-    // Load / save localStorage
+    // Load / save from localStorage
     function loadClaims() {
-        const stored = localStorage.getItem("ncig_formal_warranty");
+        const stored = localStorage.getItem("ncig_formal_warranty_english");
         if(stored) warrantyClaims = JSON.parse(stored);
         else warrantyClaims = [];
         if(warrantyClaims.length === 0) seedSampleData();
     }
-    function saveClaims() { localStorage.setItem("ncig_formal_warranty", JSON.stringify(warrantyClaims)); }
+    function saveClaims() { localStorage.setItem("ncig_formal_warranty_english", JSON.stringify(warrantyClaims)); }
+    
     function seedSampleData() {
         const today = new Date().toISOString().split('T')[0];
         warrantyClaims = [
@@ -455,10 +456,9 @@
         saveClaims();
     }
     
-    // Helper generate ID
-    function genId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 6); }
+    function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     
-    // ---------- DYNAMIC ROW PRODUK (borang formal) ----------
+    // ---------- DYNAMIC PRODUCT ROW FOR FORM ----------
     let rowCounter = 0;
     function createProductRow() {
         const rowId = `prod_${Date.now()}_${rowCounter++}`;
@@ -469,11 +469,11 @@
         div.setAttribute('data-rowid', rowId);
         div.innerHTML = `
             <div class="flex-row">
-                <div class="flex-field"><label style="font-size:0.7rem;">Produk</label><select class="prod-select" data-id="${rowId}">${productOptions}</select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Varian / Rasa</label><select class="variant-select" data-id="${rowId}"><option value="">--Pilih--</option></select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" placeholder="cth: BATCH-2409" required></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Product</label><select class="prod-select" data-id="${rowId}">${productOptions}</select></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Variant / Flavor</label><select class="variant-select" data-id="${rowId}"><option value="">--Select--</option></select></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" placeholder="e.g. BATCH-2409" required></div>
                 <div class="flex-field"><label style="font-size:0.7rem;">Defect</label><select class="defect-select" data-id="${rowId}">${defectOptionsHtml}</select></div>
-                <div><button type="button" class="remove-btn" data-id="${rowId}">Buang</button></div>
+                <div><button type="button" class="remove-btn" data-id="${rowId}">Remove</button></div>
             </div>
         `;
         const prodSel = div.querySelector('.prod-select');
@@ -481,7 +481,7 @@
         const updateVariants = () => {
             const selectedProd = prodSel.value;
             const variants = productVariants[selectedProd] || [];
-            varSel.innerHTML = '<option value="">--Pilih Varian--</option>' + variants.map(v => `<option value="${v}">${v}</option>`).join('');
+            varSel.innerHTML = '<option value="">--Select Variant--</option>' + variants.map(v => `<option value="${v}">${v}</option>`).join('');
         };
         prodSel.addEventListener('change', updateVariants);
         updateVariants();
@@ -489,41 +489,48 @@
         return div;
     }
     
-    function renderProductRows() { const container = document.getElementById('productListContainer'); if(container.children.length === 0) container.appendChild(createProductRow()); }
+    function renderProductRows() { 
+        const container = document.getElementById('productListContainer'); 
+        if(container.children.length === 0) container.appendChild(createProductRow()); 
+    }
     
-    // Submit borang waranti
+    // Submit warranty claim
     function handleSubmit(e) {
         e.preventDefault();
         const name = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phoneNumber').value.trim();
         const email = document.getElementById('emailAddress').value.trim();
         const date = document.getElementById('warrantyDateForm').value;
-        if(!name || !phone || !email || !date) { alert("Sila lengkapkan semua maklumat peribadi."); return; }
+        if(!name || !phone || !email || !date) { alert("Please complete all personal details."); return; }
         const rows = document.querySelectorAll('#productListContainer .product-entry');
-        if(rows.length === 0) { alert("Sila tambah sekurang-kurangnya satu produk bermasalah."); return; }
+        if(rows.length === 0) { alert("Please add at least one defective product."); return; }
         let items = [], valid = true;
         rows.forEach(row => {
             const product = row.querySelector('.prod-select').value;
             const variant = row.querySelector('.variant-select').value;
             const batch = row.querySelector('.batch-input').value.trim();
             const defect = row.querySelector('.defect-select').value;
-            if(!product || !variant || !batch || !defect) { valid = false; alert("Setiap produk mesti lengkap: Product, Varian, Batch & Defect."); return; }
+            if(!product || !variant || !batch || !defect) { 
+                valid = false; 
+                alert("Each product must include: Product, Variant, Batch Number & Defect."); 
+                return;
+            }
             items.push({ product, variant, batch, defect });
         });
         if(!valid) return;
-        const newClaim = { id: genId(), name, phone, email, date, items };
+        const newClaim = { id: generateId(), name, phone, email, date, items };
         warrantyClaims.unshift(newClaim);
         saveClaims();
-        alert("Tuntutan waranti berjaya dihantar. Terima kasih.");
+        alert("Warranty claim submitted successfully. Thank you.");
         document.getElementById('warrantyForm').reset();
         document.getElementById('productListContainer').innerHTML = '';
         renderProductRows();
         document.getElementById('warrantyDateForm').valueAsDate = new Date();
-        // Jika admin dashboard sedang terbuka, refresh data
+        // If admin dashboard is unlocked and visible, refresh the dashboard data
         if(adminUnlocked && document.getElementById('adminDashboardPanel').style.display === 'block') refreshAdminDashboard();
     }
     
-    // ======================= ADMIN DASHBOARD + GRAF =======================
+    // ======================= ADMIN DASHBOARD WITH GRAPHS =======================
     let adminUnlocked = false;
     let defectChart, productChart;
     
@@ -532,71 +539,108 @@
         const monthVal = document.getElementById('monthFilterAdmin').value;
         let filteredClaims = [...warrantyClaims];
         if(monthVal) filteredClaims = filteredClaims.filter(c => c.date && c.date.startsWith(monthVal));
-        // flatten items
+        
+        // Flatten items for easier reporting
         let flatItems = [];
         filteredClaims.forEach(claim => {
-            claim.items.forEach(it => { flatItems.push({ date: claim.date, name: claim.name, product: it.product, variant: it.variant, batch: it.batch, defect: it.defect }); });
+            claim.items.forEach(it => { 
+                flatItems.push({ date: claim.date, name: claim.name, product: it.product, variant: it.variant, batch: it.batch, defect: it.defect }); 
+            });
         });
         const uniqueClaimCount = new Set(filteredClaims.map(c => c.id)).size;
         document.getElementById('totalClaimsStat').innerText = uniqueClaimCount;
         
-        // top defect
+        // Top defect
         const defectCount = new Map();
         flatItems.forEach(i => defectCount.set(i.defect, (defectCount.get(i.defect)||0)+1));
-        let topDefectName = "-", maxD=0;
-        for(let [d,c] of defectCount.entries()) if(c>maxD) { maxD=c; topDefectName=d; }
+        let topDefectName = "-", maxD = 0;
+        for(let [d,c] of defectCount.entries()) if(c > maxD) { maxD = c; topDefectName = d; }
         document.getElementById('topDefectStat').innerHTML = topDefectName !== "-" ? `${topDefectName} (${maxD})` : "-";
         
+        // Most problematic product
         const productCount = new Map();
         flatItems.forEach(i => productCount.set(i.product, (productCount.get(i.product)||0)+1));
-        let topProdName = "-", maxP=0;
-        for(let [p,c] of productCount.entries()) if(c>maxP) { maxP=c; topProdName=p; }
-        document.getElementById('topProductStat').innerHTML = topProdName !== "-" ? `${topProdName} (${maxP})` : "-";
+        let topProductName = "-", maxP = 0;
+        for(let [p,c] of productCount.entries()) if(c > maxP) { maxP = c; topProductName = p; }
+        document.getElementById('topProductStat').innerHTML = topProductName !== "-" ? `${topProductName} (${maxP})` : "-";
         
-        // Jadual waranti
+        // Warranty table
         const tableBody = document.getElementById('warrantyTableBody');
-        if(flatItems.length === 0) tableBody.innerHTML = '<tr><td colspan="6">Tiada rekod untuk bulan dipilih</td></tr>';
+        if(flatItems.length === 0) tableBody.innerHTML = '<tr><td colspan="6">No records for selected month</td></tr>';
         else {
-            tableBody.innerHTML = flatItems.map(i => `<tr><td>${i.date||'-'}</td><td>${escapeHtml(i.name)}</td><td>${i.product}</td><td>${i.variant}</td><td>${i.batch}</td><td>${i.defect}</td></tr>`).join('');
+            tableBody.innerHTML = flatItems.map(i => `
+                <tr>
+                    <td>${escapeHtml(i.date || '-')}</td>
+                    <td>${escapeHtml(i.name)}</td>
+                    <td>${escapeHtml(i.product)}</td>
+                    <td>${escapeHtml(i.variant)}</td>
+                    <td>${escapeHtml(i.batch)}</td>
+                    <td>${escapeHtml(i.defect)}</td>
+                </tr>
+            `).join('');
         }
         
-        // Batch Analysis
-        const batchMap = new Map();
+        // Batch Analysis: group by product+variant+batch -> most frequent defect
+        const batchMap = new Map(); // key: product|variant|batch
         flatItems.forEach(i => {
             const key = `${i.product}|${i.variant}|${i.batch}`;
-            if(!batchMap.has(key)) batchMap.set(key, { product:i.product, variant:i.variant, batch:i.batch, defects:[] });
+            if(!batchMap.has(key)) batchMap.set(key, { product: i.product, variant: i.variant, batch: i.batch, defects: [] });
             batchMap.get(key).defects.push(i.defect);
         });
         const batchTbody = document.getElementById('batchTableBody');
-        if(batchMap.size===0) batchTbody.innerHTML = '<tr><td colspan="5">Tiada data batch</td></tr>';
+        if(batchMap.size === 0) batchTbody.innerHTML = '<tr><td colspan="5">No batch data available</td></tr>';
         else {
             let rowsHtml = '';
             for(let entry of batchMap.values()) {
                 const freq = new Map();
                 entry.defects.forEach(d => freq.set(d, (freq.get(d)||0)+1));
-                let topBatchDefect="", topFreq=0;
-                for(let [d,f] of freq) if(f>topFreq) { topFreq=f; topBatchDefect=d; }
-                rowsHtml += `<tr><td>${entry.product}</td><td>${entry.variant}</td><td>${entry.batch}</td><td>${topBatchDefect} (${topFreq})</td><td>${entry.defects.length}</td></tr>`;
+                let topBatchDefect = "", topFreq = 0;
+                for(let [d,f] of freq) if(f > topFreq) { topFreq = f; topBatchDefect = d; }
+                rowsHtml += `
+                    <tr>
+                        <td>${escapeHtml(entry.product)}</td>
+                        <td>${escapeHtml(entry.variant)}</td>
+                        <td>${escapeHtml(entry.batch)}</td>
+                        <td>${escapeHtml(topBatchDefect)} (${topFreq})</td>
+                        <td>${entry.defects.length}</td>
+                    </tr>
+                `;
             }
             batchTbody.innerHTML = rowsHtml;
         }
         
-        // GRAF 1: Defect chart (top 5)
-        const sortedDef = Array.from(defectCount.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const labelsDef = sortedDef.map(d=>d[0]);
-        const dataDef = sortedDef.map(d=>d[1]);
+        // Graph 1: Defect bar chart (top 5)
+        const sortedDefects = Array.from(defectCount.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const defectLabels = sortedDefects.map(d => d[0]);
+        const defectData = sortedDefects.map(d => d[1]);
         if(defectChart) defectChart.destroy();
         const ctxBar = document.getElementById('defectBarChart').getContext('2d');
-        defectChart = new Chart(ctxBar, { type: 'bar', data: { labels: labelsDef, datasets: [{ label: 'Bilangan Kes', data: dataDef, backgroundColor: '#d4af37', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } } });
+        defectChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: { labels: defectLabels, datasets: [{ label: 'Number of Cases', data: defectData, backgroundColor: '#d4af37', borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+        });
         
-        // GRAF 2: Produk pie
-        const prodArr = Array.from(productCount.entries());
+        // Graph 2: Product pie chart
+        const productArr = Array.from(productCount.entries());
         if(productChart) productChart.destroy();
         const ctxPie = document.getElementById('productPieChart').getContext('2d');
-        productChart = new Chart(ctxPie, { type: 'pie', data: { labels: prodArr.map(p=>p[0]), datasets: [{ data: prodArr.map(p=>p[1]), backgroundColor: ['#0b3b2f','#d4af37','#7c9e8c','#b68b40','#4a7765'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+        productChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: { labels: productArr.map(p => p[0]), datasets: [{ data: productArr.map(p => p[1]), backgroundColor: ['#0b3b2f','#d4af37','#7c9e8c','#b68b40','#4a7765'] }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
     }
     
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    function escapeHtml(str) { 
+        if(!str) return '';
+        return String(str).replace(/[&<>]/g, function(m){ 
+            if(m === '&') return '&amp;'; 
+            if(m === '<') return '&lt;'; 
+            if(m === '>') return '&gt;'; 
+            return m;
+        }); 
+    }
     
     function unlockAdmin() {
         const pwd = document.getElementById('adminPassInput').value;
@@ -604,10 +648,14 @@
             adminUnlocked = true;
             document.getElementById('adminDashboardPanel').style.display = 'block';
             refreshAdminDashboard();
-        } else { alert("Kata laluan admin salah. Akses ditolak."); adminUnlocked=false; document.getElementById('adminDashboardPanel').style.display='none'; }
+        } else { 
+            alert("Incorrect admin password. Access denied."); 
+            adminUnlocked = false; 
+            document.getElementById('adminDashboardPanel').style.display = 'none';
+        }
     }
     
-    // Event listeners
+    // Event listeners initialization
     window.onload = () => {
         loadClaims();
         renderProductRows();
