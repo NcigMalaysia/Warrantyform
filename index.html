@@ -77,144 +77,6 @@
             border: 1px solid #d0dfd9;
         }
 
-        /* ADMIN DASHBOARD SECTION - at the top, compact, accessible only to admin */
-        .admin-dashboard-section {
-            background: #ffffff;
-            border-radius: 24px;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
-            margin-bottom: 32px;
-            border: 1px solid #e9edf2;
-            overflow: hidden;
-        }
-        .admin-header {
-            background: #f9fbfa;
-            padding: 16px 28px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .admin-header h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #0b3b2f;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .admin-lock {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        .admin-lock input {
-            padding: 8px 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            background: white;
-        }
-        .btn-unlock {
-            background: #0b3b2f;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-unlock:hover {
-            background: #1f5a49;
-        }
-        .dashboard-stats {
-            padding: 20px 28px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            border-bottom: 1px solid #edf2f7;
-        }
-        .stat-card-mini {
-            flex: 1;
-            min-width: 150px;
-            background: #fefcf8;
-            padding: 14px 18px;
-            border-radius: 20px;
-            border-left: 4px solid #d4af37;
-        }
-        .stat-card-mini h4 {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #5b7c6e;
-            margin-bottom: 6px;
-        }
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #1f3e35;
-        }
-        .chart-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-            padding: 20px 28px;
-            background: #ffffff;
-        }
-        .chart-box {
-            flex: 1;
-            min-width: 240px;
-            background: #fefefe;
-            border-radius: 20px;
-            padding: 12px;
-        }
-        canvas {
-            max-height: 200px;
-            width: 100%;
-        }
-        .admin-table-wrapper {
-            padding: 0 28px 24px 28px;
-        }
-        .admin-table-wrapper h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #2c5a4a;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.75rem;
-        }
-        th, td {
-            padding: 10px 8px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-        th {
-            background: #f1f5f9;
-            font-weight: 600;
-            color: #1f3e35;
-        }
-        .filter-month {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-        .btn-small {
-            background: transparent;
-            border: 1px solid #cbd5e1;
-            padding: 5px 14px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
-
         /* WARRANTY FORM - Formal & Professional */
         .form-card {
             background: #ffffff;
@@ -344,59 +206,10 @@
                 <p>Warranty & Quality Assurance · Official Claim Form</p>
             </div>
         </div>
-        <div class="badge-official">⚙️ Official Warranty System v2.0</div>
+        <div class="badge-official">⚙️ Official Warranty System</div>
     </div>
 
-    <!-- ===================== ADMIN DASHBOARD (ONLY VISIBLE AFTER UNLOCK) ===================== -->
-    <div class="admin-dashboard-section" id="adminSection">
-        <div class="admin-header">
-            <h2>📊 Smart Report & Graphs <span style="font-size:0.7rem; background:#eef2f0; padding:2px 10px; border-radius:20px;">Admin Only</span></h2>
-            <div class="admin-lock">
-                <input type="password" id="adminPassInput" placeholder="Admin Password" autocomplete="off">
-                <button id="unlockAdminBtn" class="btn-unlock">🔓 Access Dashboard</button>
-            </div>
-        </div>
-        <div id="adminDashboardPanel" style="display: none;">
-            <!-- Quick Stats -->
-            <div class="dashboard-stats">
-                <div class="stat-card-mini"><h4>Total Claims</h4><div class="stat-number" id="totalClaimsStat">0</div></div>
-                <div class="stat-card-mini"><h4>Top Defect</h4><div class="stat-number" id="topDefectStat" style="font-size:1.2rem;">-</div></div>
-                <div class="stat-card-mini"><h4>Most Problematic Product</h4><div class="stat-number" id="topProductStat" style="font-size:1.2rem;">-</div></div>
-            </div>
-            <!-- Month Filter -->
-            <div style="padding: 0 28px; margin-top: 6px;">
-                <div class="filter-month">
-                    <label style="font-size:0.75rem; font-weight:600;">📅 Filter by Month :</label>
-                    <input type="month" id="monthFilterAdmin" style="padding:6px 12px; border-radius:30px; border:1px solid #ccc;">
-                    <button id="resetMonthAdminBtn" class="btn-small">Reset</button>
-                </div>
-            </div>
-            <!-- Bar Chart & Pie Chart -->
-            <div class="chart-row">
-                <div class="chart-box"><canvas id="defectBarChart" width="400" height="180"></canvas></div>
-                <div class="chart-box"><canvas id="productPieChart" width="400" height="180"></canvas></div>
-            </div>
-            <!-- Warranty List Table -->
-            <div class="admin-table-wrapper">
-                <h4>📋 Warranty Claims List (selected month)</h4>
-                <div style="overflow-x: auto;">
-                    <table id="warrantyTable">
-                        <thead><tr><th>Date</th><th>Customer Name</th><th>Product</th><th>Variant</th><th>Batch No</th><th>Defect</th></tr></thead>
-                        <tbody id="warrantyTableBody"><tr><td colspan="6">Click 'Access Dashboard' to view</td></tr></tbody>
-                    </table>
-                </div>
-                <h4 style="margin-top: 24px;">📦 Batch Analysis & Most Frequent Defect</h4>
-                <div style="overflow-x: auto;">
-                    <table id="batchTable">
-                        <thead><tr><th>Product</th><th>Variant</th><th>Batch Number</th><th>Most Frequent Defect</th><th>Total Cases</th></tr></thead>
-                        <tbody id="batchTableBody"><tr><td colspan="5">-</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===================== WARRANTY CLAIM FORM (PUBLIC) ===================== -->
+    <!-- ===================== WARRANTY CLAIM FORM ===================== -->
     <div class="form-card">
         <div class="form-title">
             <h2>NCIG Warranty Claim Form</h2>
@@ -404,12 +217,12 @@
         </div>
         <form id="warrantyForm">
             <div class="row-2col">
-                <div class="field"><label>Full Name</label><input type="text" id="fullName" placeholder="e.g. Ahmad Faiz Bin Abdullah" required></div>
-                <div class="field"><label>Phone Number</label><input type="tel" id="phoneNumber" placeholder="012-3456789" required></div>
-                <div class="field"><label>Email</label><input type="email" id="emailAddress" placeholder="name@ncig.com.my" required></div>
+                <div class="field"><label>Full Name</label><input type="text" id="fullName" placeholder="" required></div>
+                <div class="field"><label>Phone Number</label><input type="tel" id="phoneNumber" placeholder="" required></div>
+                <div class="field"><label>Email</label><input type="email" id="emailAddress" placeholder="" required></div>
                 <div class="field"><label>Warranty Date</label><input type="date" id="warrantyDateForm" required></div>
             </div>
-            <div style="margin: 10px 0 6px;"><strong style="color:#1f4d3e;">🛠 Defective Products List</strong></div>
+            <div style="margin: 10px 0 6px;"><strong style="color:#1f4d3e;">Defective Products List</strong></div>
             <div id="productListContainer"></div>
             <button type="button" id="addProductBtnForm" class="btn-add">+ Add Product (with batch & defect)</button>
             <hr>
@@ -471,7 +284,7 @@
             <div class="flex-row">
                 <div class="flex-field"><label style="font-size:0.7rem;">Product</label><select class="prod-select" data-id="${rowId}">${productOptions}</select></div>
                 <div class="flex-field"><label style="font-size:0.7rem;">Variant / Flavor</label><select class="variant-select" data-id="${rowId}"><option value="">--Select--</option></select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" placeholder="e.g. BATCH-2409" required></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" placeholder="" required></div>
                 <div class="flex-field"><label style="font-size:0.7rem;">Defect</label><select class="defect-select" data-id="${rowId}">${defectOptionsHtml}</select></div>
                 <div><button type="button" class="remove-btn" data-id="${rowId}">Remove</button></div>
             </div>
@@ -526,136 +339,9 @@
         document.getElementById('productListContainer').innerHTML = '';
         renderProductRows();
         document.getElementById('warrantyDateForm').valueAsDate = new Date();
-        // If admin dashboard is unlocked and visible, refresh the dashboard data
-        if(adminUnlocked && document.getElementById('adminDashboardPanel').style.display === 'block') refreshAdminDashboard();
     }
     
-    // ======================= ADMIN DASHBOARD WITH GRAPHS =======================
-    let adminUnlocked = false;
-    let defectChart, productChart;
-    
-    function refreshAdminDashboard() {
-        if(!adminUnlocked) return;
-        const monthVal = document.getElementById('monthFilterAdmin').value;
-        let filteredClaims = [...warrantyClaims];
-        if(monthVal) filteredClaims = filteredClaims.filter(c => c.date && c.date.startsWith(monthVal));
-        
-        // Flatten items for easier reporting
-        let flatItems = [];
-        filteredClaims.forEach(claim => {
-            claim.items.forEach(it => { 
-                flatItems.push({ date: claim.date, name: claim.name, product: it.product, variant: it.variant, batch: it.batch, defect: it.defect }); 
-            });
-        });
-        const uniqueClaimCount = new Set(filteredClaims.map(c => c.id)).size;
-        document.getElementById('totalClaimsStat').innerText = uniqueClaimCount;
-        
-        // Top defect
-        const defectCount = new Map();
-        flatItems.forEach(i => defectCount.set(i.defect, (defectCount.get(i.defect)||0)+1));
-        let topDefectName = "-", maxD = 0;
-        for(let [d,c] of defectCount.entries()) if(c > maxD) { maxD = c; topDefectName = d; }
-        document.getElementById('topDefectStat').innerHTML = topDefectName !== "-" ? `${topDefectName} (${maxD})` : "-";
-        
-        // Most problematic product
-        const productCount = new Map();
-        flatItems.forEach(i => productCount.set(i.product, (productCount.get(i.product)||0)+1));
-        let topProductName = "-", maxP = 0;
-        for(let [p,c] of productCount.entries()) if(c > maxP) { maxP = c; topProductName = p; }
-        document.getElementById('topProductStat').innerHTML = topProductName !== "-" ? `${topProductName} (${maxP})` : "-";
-        
-        // Warranty table
-        const tableBody = document.getElementById('warrantyTableBody');
-        if(flatItems.length === 0) tableBody.innerHTML = '<tr><td colspan="6">No records for selected month</td></tr>';
-        else {
-            tableBody.innerHTML = flatItems.map(i => `
-                <tr>
-                    <td>${escapeHtml(i.date || '-')}</td>
-                    <td>${escapeHtml(i.name)}</td>
-                    <td>${escapeHtml(i.product)}</td>
-                    <td>${escapeHtml(i.variant)}</td>
-                    <td>${escapeHtml(i.batch)}</td>
-                    <td>${escapeHtml(i.defect)}</td>
-                </tr>
-            `).join('');
-        }
-        
-        // Batch Analysis: group by product+variant+batch -> most frequent defect
-        const batchMap = new Map(); // key: product|variant|batch
-        flatItems.forEach(i => {
-            const key = `${i.product}|${i.variant}|${i.batch}`;
-            if(!batchMap.has(key)) batchMap.set(key, { product: i.product, variant: i.variant, batch: i.batch, defects: [] });
-            batchMap.get(key).defects.push(i.defect);
-        });
-        const batchTbody = document.getElementById('batchTableBody');
-        if(batchMap.size === 0) batchTbody.innerHTML = '<tr><td colspan="5">No batch data available</td></tr>';
-        else {
-            let rowsHtml = '';
-            for(let entry of batchMap.values()) {
-                const freq = new Map();
-                entry.defects.forEach(d => freq.set(d, (freq.get(d)||0)+1));
-                let topBatchDefect = "", topFreq = 0;
-                for(let [d,f] of freq) if(f > topFreq) { topFreq = f; topBatchDefect = d; }
-                rowsHtml += `
-                    <tr>
-                        <td>${escapeHtml(entry.product)}</td>
-                        <td>${escapeHtml(entry.variant)}</td>
-                        <td>${escapeHtml(entry.batch)}</td>
-                        <td>${escapeHtml(topBatchDefect)} (${topFreq})</td>
-                        <td>${entry.defects.length}</td>
-                    </tr>
-                `;
-            }
-            batchTbody.innerHTML = rowsHtml;
-        }
-        
-        // Graph 1: Defect bar chart (top 5)
-        const sortedDefects = Array.from(defectCount.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const defectLabels = sortedDefects.map(d => d[0]);
-        const defectData = sortedDefects.map(d => d[1]);
-        if(defectChart) defectChart.destroy();
-        const ctxBar = document.getElementById('defectBarChart').getContext('2d');
-        defectChart = new Chart(ctxBar, {
-            type: 'bar',
-            data: { labels: defectLabels, datasets: [{ label: 'Number of Cases', data: defectData, backgroundColor: '#d4af37', borderRadius: 6 }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
-        });
-        
-        // Graph 2: Product pie chart
-        const productArr = Array.from(productCount.entries());
-        if(productChart) productChart.destroy();
-        const ctxPie = document.getElementById('productPieChart').getContext('2d');
-        productChart = new Chart(ctxPie, {
-            type: 'pie',
-            data: { labels: productArr.map(p => p[0]), datasets: [{ data: productArr.map(p => p[1]), backgroundColor: ['#0b3b2f','#d4af37','#7c9e8c','#b68b40','#4a7765'] }] },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-        });
-    }
-    
-    function escapeHtml(str) { 
-        if(!str) return '';
-        return String(str).replace(/[&<>]/g, function(m){ 
-            if(m === '&') return '&amp;'; 
-            if(m === '<') return '&lt;'; 
-            if(m === '>') return '&gt;'; 
-            return m;
-        }); 
-    }
-    
-    function unlockAdmin() {
-        const pwd = document.getElementById('adminPassInput').value;
-        if(pwd === "admin123") {
-            adminUnlocked = true;
-            document.getElementById('adminDashboardPanel').style.display = 'block';
-            refreshAdminDashboard();
-        } else { 
-            alert("Incorrect admin password. Access denied."); 
-            adminUnlocked = false; 
-            document.getElementById('adminDashboardPanel').style.display = 'none';
-        }
-    }
-    
-    // Event listeners initialization
+    // Initialize form and load data
     window.onload = () => {
         loadClaims();
         renderProductRows();
@@ -663,11 +349,6 @@
         document.getElementById('warrantyDateForm').value = todayStr;
         document.getElementById('addProductBtnForm').addEventListener('click', () => document.getElementById('productListContainer').appendChild(createProductRow()));
         document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
-        document.getElementById('unlockAdminBtn').addEventListener('click', unlockAdmin);
-        document.getElementById('monthFilterAdmin').addEventListener('change', () => { if(adminUnlocked) refreshAdminDashboard(); });
-        document.getElementById('resetMonthAdminBtn').addEventListener('click', () => { document.getElementById('monthFilterAdmin').value = ''; if(adminUnlocked) refreshAdminDashboard(); });
-        adminUnlocked = false;
-        document.getElementById('adminDashboardPanel').style.display = 'none';
     };
 </script>
 </body>
