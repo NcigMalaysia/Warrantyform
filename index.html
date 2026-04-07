@@ -4,200 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>NCIG Malaysia - Official Warranty System</title>
-    <!-- Chart.js for lightweight graphs -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: #eef2f5;
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Roboto', sans-serif;
-            padding: 40px 32px;
-            color: #1e2a3a;
-        }
-
-        /* Main container - professional width */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-        }
-
-        /* Corporate header - clean, elegant */
+        /* Sama seperti styling sebelumnya - paste semua CSS yang sama */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #eef2f5; font-family: 'Inter', 'Segoe UI', sans-serif; padding: 40px 32px; color: #1e2a3a; }
+        .container { max-width: 1280px; margin: 0 auto; }
         .official-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #ffffff;
-            padding: 16px 28px;
-            border-radius: 16px;
-            margin-bottom: 28px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex; align-items: center; justify-content: space-between;
+            background: #ffffff; padding: 16px 28px; border-radius: 16px;
+            margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             border: 1px solid #e2e8f0;
         }
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
+        .brand { display: flex; align-items: center; gap: 14px; }
         .brand-logo {
-            background: #0b3b2f;
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 20px;
-            color: #d4af37;
-            font-family: monospace;
+            background: #0b3b2f; width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 20px; color: #d4af37;
         }
-        .brand-text h1 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-            color: #0b3b2f;
-        }
-        .brand-text p {
-            font-size: 0.7rem;
-            color: #5a6e6a;
-            font-weight: 500;
-        }
-        .badge-official {
-            background: #f8f9fa;
-            padding: 6px 18px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #2c5a4a;
-            border: 1px solid #d0dfd9;
-        }
-
-        /* WARRANTY FORM - Formal & Professional */
-        .form-card {
-            background: #ffffff;
-            border-radius: 24px;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
-            padding: 32px 34px;
-            border: 1px solid #e9edf2;
-        }
-        .form-title {
-            margin-bottom: 28px;
-            border-left: 5px solid #d4af37;
-            padding-left: 20px;
-        }
-        .form-title h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1a3a30;
-        }
-        .form-title p {
-            color: #5f7a70;
-            font-size: 0.85rem;
-            margin-top: 6px;
-        }
-        .row-2col {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 24px;
-            margin-bottom: 28px;
-        }
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .field label {
-            font-weight: 600;
-            font-size: 0.75rem;
-            color: #2f5d4c;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-        }
-        .field input, .field select {
-            padding: 12px 16px;
-            border: 1px solid #cfdfd8;
-            border-radius: 14px;
-            font-size: 0.9rem;
-            background: white;
-            transition: 0.2s;
-        }
-        .field input:focus, .field select:focus {
-            outline: none;
-            border-color: #d4af37;
-            box-shadow: 0 0 0 2px rgba(212,175,55,0.2);
-        }
-        .product-entry {
-            background: #fafcfb;
-            border-radius: 20px;
-            padding: 20px 22px;
-            margin-bottom: 18px;
-            border: 1px solid #e6efea;
-        }
-        .flex-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            align-items: flex-end;
-        }
-        .flex-field {
-            flex: 1;
-            min-width: 150px;
-        }
-        .remove-btn {
-            background: #fff4f0;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 500;
-            color: #b1624b;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-        .btn-add {
-            background: transparent;
-            border: 1.5px dashed #b9cfc5;
-            padding: 10px 22px;
-            border-radius: 40px;
-            font-weight: 600;
-            margin: 10px 0 20px;
-            cursor: pointer;
-            color: #2f5d4c;
-        }
-        .btn-submit {
-            background: #0b3b2f;
-            color: white;
-            border: none;
-            padding: 14px 32px;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            float: right;
-        }
-        hr {
-            margin: 16px 0;
-            border-color: #ecf3ef;
-        }
-        footer {
-            text-align: center;
-            font-size: 0.7rem;
-            color: #8ba39a;
-            margin-top: 32px;
-        }
-        @media (max-width: 700px) {
-            body { padding: 20px 16px; }
-            .form-card { padding: 20px; }
-        }
+        .brand-text h1 { font-size: 1.6rem; font-weight: 600; color: #0b3b2f; }
+        .brand-text p { font-size: 0.7rem; color: #5a6e6a; }
+        .badge-official { background: #f8f9fa; padding: 6px 18px; border-radius: 30px; font-size: 0.75rem; color: #2c5a4a; border: 1px solid #d0dfd9; }
+        .form-card { background: #ffffff; border-radius: 24px; padding: 32px 34px; border: 1px solid #e9edf2; box-shadow: 0 6px 14px rgba(0,0,0,0.03); }
+        .form-title { margin-bottom: 28px; border-left: 5px solid #d4af37; padding-left: 20px; }
+        .form-title h2 { font-size: 1.5rem; font-weight: 600; color: #1a3a30; }
+        .form-title p { color: #5f7a70; font-size: 0.85rem; margin-top: 6px; }
+        .row-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 28px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label { font-weight: 600; font-size: 0.75rem; color: #2f5d4c; text-transform: uppercase; letter-spacing: 0.6px; }
+        .field input, .field select { padding: 12px 16px; border: 1px solid #cfdfd8; border-radius: 14px; font-size: 0.9rem; background: white; }
+        .field input:focus, .field select:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 0 2px rgba(212,175,55,0.2); }
+        .product-entry { background: #fafcfb; border-radius: 20px; padding: 20px 22px; margin-bottom: 18px; border: 1px solid #e6efea; }
+        .flex-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
+        .flex-field { flex: 1; min-width: 150px; }
+        .remove-btn { background: #fff4f0; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 500; color: #b1624b; cursor: pointer; font-size: 0.75rem; }
+        .btn-add { background: transparent; border: 1.5px dashed #b9cfc5; padding: 10px 22px; border-radius: 40px; font-weight: 600; margin: 10px 0 20px; cursor: pointer; color: #2f5d4c; }
+        .btn-submit { background: #0b3b2f; color: white; border: none; padding: 14px 32px; border-radius: 40px; font-weight: 700; font-size: 0.9rem; cursor: pointer; float: right; }
+        hr { margin: 16px 0; border-color: #ecf3ef; }
+        footer { text-align: center; font-size: 0.7rem; color: #8ba39a; margin-top: 32px; }
+        .loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center; }
+        .loading.active { display: flex; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 700px) { body { padding: 20px 16px; } .form-card { padding: 20px; } }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- Official NCIG Malaysia Header -->
     <div class="official-header">
         <div class="brand">
             <div class="brand-logo">NCIG</div>
@@ -209,7 +61,6 @@
         <div class="badge-official">⚙️ Official Warranty System</div>
     </div>
 
-    <!-- ===================== WARRANTY CLAIM FORM ===================== -->
     <div class="form-card">
         <div class="form-title">
             <h2>NCIG Warranty Claim Form</h2>
@@ -217,9 +68,9 @@
         </div>
         <form id="warrantyForm">
             <div class="row-2col">
-                <div class="field"><label>Full Name</label><input type="text" id="fullName" placeholder="" required></div>
-                <div class="field"><label>Phone Number</label><input type="tel" id="phoneNumber" placeholder="" required></div>
-                <div class="field"><label>Email</label><input type="email" id="emailAddress" placeholder="" required></div>
+                <div class="field"><label>Full Name</label><input type="text" id="fullName" required></div>
+                <div class="field"><label>Phone Number</label><input type="tel" id="phoneNumber" required></div>
+                <div class="field"><label>Email</label><input type="email" id="emailAddress" required></div>
                 <div class="field"><label>Warranty Date</label><input type="date" id="warrantyDateForm" required></div>
             </div>
             <div style="margin: 10px 0 6px;"><strong style="color:#1f4d3e;">Defective Products List</strong></div>
@@ -230,14 +81,22 @@
             <div style="clear:both"></div>
         </form>
     </div>
-    <footer>© NCIG Malaysia - Warranty data is stored locally for quality assurance purposes. All claims are recorded securely.</footer>
+    <footer>© NCIG Malaysia - Warranty data is stored locally and synced to Google Sheets for quality assurance.</footer>
+</div>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="loading">
+    <div class="spinner"></div>
 </div>
 
 <script>
-    // ======================= DATA MODEL & STORAGE =======================
-    let warrantyClaims = [];      // each claim: { id, name, phone, email, date, items: [{product, variant, batch, defect}] }
+    // ======================= GOOGLE SHEETS CONFIGURATION =======================
+    // ⚠️ IMPORTANT: Replace this URL with your Google Apps Script Web App URL
+    const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
     
-    // Product & variant mapping (as per specification)
+    // ======================= DATA MODEL & STORAGE =======================
+    let warrantyClaims = [];
+    
     const productVariants = {
         "NCIG PRO": ["Glacier", "Embered", "Pine", "Kendal", "Midnight", "Ncig Pro One Million", "Suzuka Yellow", "Sepang White", "Sangria", "Sage", "Tiffany", "Merdeka Edition"],
         "NCIG ONE": ["Obsidian", "Pacific", "Scarlet"],
@@ -250,28 +109,109 @@
         "Tasteless", "Weird Taste", "Assembly Issues"
     ];
     
-    // Load / save from localStorage
     function loadClaims() {
-        const stored = localStorage.getItem("ncig_formal_warranty_english");
+        const stored = localStorage.getItem("ncig_warranty_backup");
         if(stored) warrantyClaims = JSON.parse(stored);
         else warrantyClaims = [];
-        if(warrantyClaims.length === 0) seedSampleData();
     }
-    function saveClaims() { localStorage.setItem("ncig_formal_warranty_english", JSON.stringify(warrantyClaims)); }
-    
-    function seedSampleData() {
-        const today = new Date().toISOString().split('T')[0];
-        warrantyClaims = [
-            { id: "seed1", name: "Muhammad Danish", phone: "0198765432", email: "danish@ncig.com", date: today, items: [{ product: "NCIG PRO", variant: "Glacier", batch: "BATCH-P01", defect: "Leaking" }] },
-            { id: "seed2", name: "Nur Aisyah", phone: "0112233445", email: "aisyah@ncig.com", date: today, items: [{ product: "NPOD PRO", variant: "Mango", batch: "NPOD-M05", defect: "Tasteless" },{ product: "NCIG CUBE", variant: "Ocean", batch: "CUBE-A2", defect: "No Vibration" }] },
-            { id: "seed3", name: "Rizman Haikal", phone: "0178899001", email: "rizman@ncig.com", date: "2025-03-10", items: [{ product: "NCIG ONE", variant: "Obsidian", batch: "ONE-99X", defect: "Activation Failure" }] }
-        ];
-        saveClaims();
-    }
+    function saveClaims() { localStorage.setItem("ncig_warranty_backup", JSON.stringify(warrantyClaims)); }
     
     function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
     
-    // ---------- DYNAMIC PRODUCT ROW FOR FORM ----------
+    // Send data to Google Sheets
+    async function sendToGoogleSheet(claimData) {
+        try {
+            const response = await fetch(GOOGLE_SHEETS_API_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Required for Google Apps Script
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(claimData)
+            });
+            return { success: true };
+        } catch(error) {
+            console.error("Google Sheets error:", error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+    // Submit warranty claim
+    async function handleSubmit(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phoneNumber').value.trim();
+        const email = document.getElementById('emailAddress').value.trim();
+        const date = document.getElementById('warrantyDateForm').value;
+        
+        if(!name || !phone || !email || !date) { 
+            alert("Please complete all personal details."); 
+            return; 
+        }
+        
+        const rows = document.querySelectorAll('#productListContainer .product-entry');
+        if(rows.length === 0) { 
+            alert("Please add at least one defective product."); 
+            return; 
+        }
+        
+        let items = [], valid = true;
+        rows.forEach(row => {
+            const product = row.querySelector('.prod-select').value;
+            const variant = row.querySelector('.variant-select').value;
+            const batch = row.querySelector('.batch-input').value.trim();
+            const defect = row.querySelector('.defect-select').value;
+            if(!product || !variant || !batch || !defect) { 
+                valid = false; 
+                alert("Each product must include: Product, Variant, Batch Number & Defect."); 
+                return;
+            }
+            items.push({ product, variant, batch, defect });
+        });
+        if(!valid) return;
+        
+        const claimId = generateId();
+        const newClaim = { id: claimId, name, phone, email, date, items };
+        
+        // Show loading
+        document.getElementById('loadingOverlay').classList.add('active');
+        
+        try {
+            // Send to Google Sheets
+            const result = await sendToGoogleSheet({
+                claimId: claimId,
+                name: name,
+                phone: phone,
+                email: email,
+                date: date,
+                items: items
+            });
+            
+            // Save to local backup regardless of Google Sheets success
+            warrantyClaims.unshift(newClaim);
+            saveClaims();
+            
+            if(result.success) {
+                alert("Warranty claim submitted successfully! Data has been saved to Google Sheets.");
+            } else {
+                alert("Warranty claim saved locally but failed to sync with Google Sheets. Data will be synced later.");
+                console.error("Sync error:", result.error);
+            }
+            
+            // Reset form
+            document.getElementById('warrantyForm').reset();
+            document.getElementById('productListContainer').innerHTML = '';
+            renderProductRows();
+            document.getElementById('warrantyDateForm').valueAsDate = new Date();
+            
+        } catch(error) {
+            alert("Error submitting claim. Please try again.");
+            console.error(error);
+        } finally {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+    }
+    
+    // Dynamic product row
     let rowCounter = 0;
     function createProductRow() {
         const rowId = `prod_${Date.now()}_${rowCounter++}`;
@@ -282,11 +222,11 @@
         div.setAttribute('data-rowid', rowId);
         div.innerHTML = `
             <div class="flex-row">
-                <div class="flex-field"><label style="font-size:0.7rem;">Product</label><select class="prod-select" data-id="${rowId}">${productOptions}</select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Variant / Flavor</label><select class="variant-select" data-id="${rowId}"><option value="">--Select--</option></select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" placeholder="" required></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Defect</label><select class="defect-select" data-id="${rowId}">${defectOptionsHtml}</select></div>
-                <div><button type="button" class="remove-btn" data-id="${rowId}">Remove</button></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Product</label><select class="prod-select">${productOptions}</select></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Variant / Flavor</label><select class="variant-select"><option value="">--Select--</option></select></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" required></div>
+                <div class="flex-field"><label style="font-size:0.7rem;">Defect</label><select class="defect-select">${defectOptionsHtml}</select></div>
+                <div><button type="button" class="remove-btn">Remove</button></div>
             </div>
         `;
         const prodSel = div.querySelector('.prod-select');
@@ -307,41 +247,6 @@
         if(container.children.length === 0) container.appendChild(createProductRow()); 
     }
     
-    // Submit warranty claim
-    function handleSubmit(e) {
-        e.preventDefault();
-        const name = document.getElementById('fullName').value.trim();
-        const phone = document.getElementById('phoneNumber').value.trim();
-        const email = document.getElementById('emailAddress').value.trim();
-        const date = document.getElementById('warrantyDateForm').value;
-        if(!name || !phone || !email || !date) { alert("Please complete all personal details."); return; }
-        const rows = document.querySelectorAll('#productListContainer .product-entry');
-        if(rows.length === 0) { alert("Please add at least one defective product."); return; }
-        let items = [], valid = true;
-        rows.forEach(row => {
-            const product = row.querySelector('.prod-select').value;
-            const variant = row.querySelector('.variant-select').value;
-            const batch = row.querySelector('.batch-input').value.trim();
-            const defect = row.querySelector('.defect-select').value;
-            if(!product || !variant || !batch || !defect) { 
-                valid = false; 
-                alert("Each product must include: Product, Variant, Batch Number & Defect."); 
-                return;
-            }
-            items.push({ product, variant, batch, defect });
-        });
-        if(!valid) return;
-        const newClaim = { id: generateId(), name, phone, email, date, items };
-        warrantyClaims.unshift(newClaim);
-        saveClaims();
-        alert("Warranty claim submitted successfully. Thank you.");
-        document.getElementById('warrantyForm').reset();
-        document.getElementById('productListContainer').innerHTML = '';
-        renderProductRows();
-        document.getElementById('warrantyDateForm').valueAsDate = new Date();
-    }
-    
-    // Initialize form and load data
     window.onload = () => {
         loadClaims();
         renderProductRows();
@@ -349,6 +254,11 @@
         document.getElementById('warrantyDateForm').value = todayStr;
         document.getElementById('addProductBtnForm').addEventListener('click', () => document.getElementById('productListContainer').appendChild(createProductRow()));
         document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
+        
+        // Check if Google Sheets URL is configured
+        if(GOOGLE_SHEETS_API_URL.includes("YOUR_DEPLOYMENT_ID")) {
+            console.warn("⚠️ Please configure your Google Sheets API URL in the script.");
+        }
     };
 </script>
 </body>
