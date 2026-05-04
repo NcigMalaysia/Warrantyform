@@ -2,264 +2,418 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>NCIG Malaysia - Official Warranty System</title>
-    <style> 
-        /* Sama seperti styling sebelumnya - paste semua CSS yang sama */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #eef2f5; font-family: 'Inter', 'Segoe UI', sans-serif; padding: 40px 32px; color: #1e2a3a; }
-        .container { max-width: 1280px; margin: 0 auto; }
-        .official-header {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #ffffff; padding: 16px 28px; border-radius: 16px;
-            margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            border: 1px solid #e2e8f0;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCIG Warranty Analytics | Full Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
         }
-        .brand { display: flex; align-items: center; gap: 14px; }
-        .brand-logo {
-            background: #0b3b2f; width: 48px; height: 48px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 20px; color: #d4af37;
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;}
+        .header{background:var(--card-bg);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:0 1px 2px rgba(0,0,0,0.05);position:sticky;top:0;z-index:100;}
+        .header .logo-area{display:flex;align-items:center;gap:12px;}
+        .header .logo-icon{width:42px;height:42px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;}
+        .header h1{font-size:1.15rem;font-weight:700;letter-spacing:-0.3px;}
+        .header .subtitle{font-size:0.78rem;color:var(--text-secondary);font-weight:500;}
+        .refresh-area{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+        .refresh-btn{background:#2563eb;color:#fff;padding:10px 22px;border-radius:50px;cursor:pointer;font-weight:600;font-size:0.88rem;border:none;transition:var(--transition);display:flex;align-items:center;gap:7px;white-space:nowrap;box-shadow:0 2px 8px rgba(37,99,235,0.25);}
+        .refresh-btn:hover{background:#1d4ed8;transform:translateY(-1px);}
+        .refresh-btn:disabled{background:#94a3b8;cursor:not-allowed;transform:none;}
+        #statusText{font-size:0.82rem;color:var(--text-secondary);}
+        .filter-bar{padding:14px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+        .filter-bar label{font-weight:600;font-size:0.88rem;}
+        .filter-bar select{padding:9px 14px;border:1.5px solid var(--border);border-radius:50px;font-size:0.88rem;background:var(--card-bg);cursor:pointer;min-width:160px;font-weight:500;}
+        .container{max-width:1440px;margin:0 auto;padding:8px 28px 32px;}
+        .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+        .kpi-card{background:var(--card-bg);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;overflow:hidden;}
+        .kpi-card .kpi-accent{position:absolute;top:0;left:0;width:5px;height:100%;border-radius:5px 0 0 5px;}
+        .kpi-card .kpi-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-secondary);font-weight:600;margin-bottom:4px;}
+        .kpi-card .kpi-value{font-size:2.4rem;font-weight:800;letter-spacing:-1px;line-height:1;}
+        .kpi-card .kpi-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:4px;}
+        .section-header{display:flex;align-items:center;gap:10px;margin:28px 0 10px;padding-bottom:10px;border-bottom:2px solid #e2e8f0;}
+        .section-header .section-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;}
+        .section-header h2{font-size:1.1rem;font-weight:700;}
+        .section-header .badge{padding:4px 12px;border-radius:50px;font-size:0.78rem;font-weight:600;}
+        .product-card{background:var(--card-bg);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;}
+        .product-card.ncigpro{border-left:4px solid #2563eb;background:#fafcff;}
+        .product-card.ncigone{border-left:4px solid #10b981;background:#fafefc;}
+        .product-card.ncigcube{border-left:4px solid #f59e0b;background:#fffefa;}
+        .product-card.npod{border-left:4px solid #8b5cf6;background:#faf9ff;}
+        .product-card h3{font-size:0.95rem;font-weight:700;margin-bottom:14px;}
+        .pie-section{border-top:1px solid #e2e8f0;padding-top:18px;margin-top:14px;}
+        .pie-section h4{font-size:0.85rem;font-weight:700;margin-bottom:10px;color:#475569;}
+        .pie-wrapper{display:flex;justify-content:center;align-items:center;max-width:500px;margin:0 auto;}
+        .pie-wrapper canvas{max-height:320px;}
+        .batch-card{background:var(--card-bg);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow);border:1px solid var(--border);}
+        .batch-card.ncigpro{border-left:4px solid #2563eb;background:#fafcff;}
+        .batch-card.ncigone{border-left:4px solid #10b981;background:#fafefc;}
+        .batch-card.ncigcube{border-left:4px solid #f59e0b;background:#fffefa;}
+        .batch-card.npod{border-left:4px solid #8b5cf6;background:#faf9ff;}
+        .batch-card h4{font-size:0.85rem;font-weight:700;margin-bottom:10px;}
+        .heatmap-table-wrapper{overflow-x:auto;margin-top:8px;max-height:400px;overflow-y:auto;}
+        .heatmap-table{width:100%;border-collapse:collapse;font-size:0.78rem;min-width:400px;}
+        .heatmap-table th,.heatmap-table td{padding:8px 10px;text-align:center;border:1px solid #e2e8f0;white-space:nowrap;}
+        .heatmap-table thead th{background:#f8fafc;font-weight:700;color:#475569;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;position:sticky;top:0;z-index:2;}
+        .heatmap-table .varian-col{text-align:left;font-weight:700;min-width:110px;position:sticky;left:0;z-index:1;}
+        .heatmap-table.ncigpro-table .varian-col{background:#eff6ff;color:#1d4ed8;}
+        .heatmap-table.ncigpro-table .total-col,.heatmap-table.ncigpro-table .total-row{background:#eff6ff;color:#1d4ed8;}
+        .heatmap-table.ncigone-table .varian-col{background:#ecfdf5;color:#059669;}
+        .heatmap-table.ncigone-table .total-col,.heatmap-table.ncigone-table .total-row{background:#ecfdf5;color:#059669;}
+        .heatmap-table.ncigcube-table .varian-col{background:#fffbeb;color:#b45309;}
+        .heatmap-table.ncigcube-table .total-col,.heatmap-table.ncigcube-table .total-row{background:#fffbeb;color:#b45309;}
+        .heatmap-table.npod-table .varian-col{background:#f5f3ff;color:#5b21b6;}
+        .heatmap-table.npod-table .total-col,.heatmap-table.npod-table .total-row{background:#f5f3ff;color:#5b21b6;}
+        .heatmap-table .total-col{font-weight:800;}
+        .heatmap-table .total-row{font-weight:800;}
+        .heatmap-table .total-row td{border-top:2px solid #94a3b8;}
+        .heat-cell.high{background:#fce7f3;color:#be185d;font-weight:700;}
+        .heat-cell.medium{background:#fef3c7;color:#b45309;font-weight:600;}
+        .heat-cell.low{background:#f0fdf4;color:#166534;}
+        .heat-cell.zero{background:#f8fafc;color:#cbd5e1;}
+        .summary-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+        .summary-tag{padding:4px 10px;border-radius:50px;font-weight:600;font-size:0.74rem;}
+        .ncigpro .summary-tag{background:#eff6ff;color:#2563eb;}
+        .ncigone .summary-tag{background:#ecfdf5;color:#059669;}
+        .ncigcube .summary-tag{background:#fffbeb;color:#b45309;}
+        .npod .summary-tag{background:#f5f3ff;color:#7c3aed;}
+        .batch-mini-table{width:100%;border-collapse:collapse;font-size:0.78rem;}
+        .batch-mini-table th,.batch-mini-table td{padding:7px 10px;text-align:left;border:1px solid #e2e8f0;}
+        .batch-mini-table thead th{background:#fef2f2;color:#b91c1c;font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;}
+        .batch-mini-table tbody tr:hover{background:#fef2f2;}
+        .batch-mini-table .batch-col{font-family:monospace;font-size:0.75rem;color:#1d4ed8;font-weight:600;}
+        .batch-mini-table .defect-col{color:#b91c1c;font-weight:600;font-size:0.72rem;}
+        .batch-mini-table .count-badge{display:inline-block;background:#fef2f2;color:#dc2626;padding:2px 7px;border-radius:50px;font-weight:700;font-size:0.72rem;}
+        .chart-card{background:var(--card-bg);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:18px;}
+        .chart-card h3{font-size:0.95rem;font-weight:700;margin-bottom:14px;}
+        .chart-wrapper{position:relative;width:100%;display:flex;justify-content:center;align-items:center;}
+        .chart-wrapper canvas{max-height:350px;}
+        .loading-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.8);z-index:200;justify-content:center;align-items:center;flex-direction:column;gap:16px;}
+        .loading-overlay.active{display:flex;}
+        .spinner{width:44px;height:44px;border:4px solid var(--border);border-top:4px solid #2563eb;border-radius:50%;animation:spin 0.7s linear infinite;}
+        .loading-text{font-size:0.9rem;color:#64748b;font-weight:500;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .error-box{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px 20px;margin:20px 0;color:#b91c1c;font-size:0.88rem;display:none;}
+        .error-box.active{display:block;}
+        ::-webkit-scrollbar{width:6px;height:6px;}
+        ::-webkit-scrollbar-track{background:transparent;}
+        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px;}
+        @media(max-width:768px){
+            .header{padding:10px 14px;}
+            .filter-bar{padding:10px 14px;}
+            .container{padding:6px 10px 20px;}
+            .kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+            .kpi-card .kpi-value{font-size:1.8rem;}
         }
-        .brand-text h1 { font-size: 1.6rem; font-weight: 600; color: #0b3b2f; }
-        .brand-text p { font-size: 0.7rem; color: #5a6e6a; }
-        .badge-official { background: #f8f9fa; padding: 6px 18px; border-radius: 30px; font-size: 0.75rem; color: #2c5a4a; border: 1px solid #d0dfd9; }
-        .form-card { background: #ffffff; border-radius: 24px; padding: 32px 34px; border: 1px solid #e9edf2; box-shadow: 0 6px 14px rgba(0,0,0,0.03); }
-        .form-title { margin-bottom: 28px; border-left: 5px solid #d4af37; padding-left: 20px; }
-        .form-title h2 { font-size: 1.5rem; font-weight: 600; color: #1a3a30; }
-        .form-title p { color: #5f7a70; font-size: 0.85rem; margin-top: 6px; }
-        .row-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 28px; }
-        .field { display: flex; flex-direction: column; gap: 6px; }
-        .field label { font-weight: 600; font-size: 0.75rem; color: #2f5d4c; text-transform: uppercase; letter-spacing: 0.6px; }
-        .field input, .field select { padding: 12px 16px; border: 1px solid #cfdfd8; border-radius: 14px; font-size: 0.9rem; background: white; }
-        .field input:focus, .field select:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 0 2px rgba(212,175,55,0.2); }
-        .product-entry { background: #fafcfb; border-radius: 20px; padding: 20px 22px; margin-bottom: 18px; border: 1px solid #e6efea; }
-        .flex-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
-        .flex-field { flex: 1; min-width: 150px; }
-        .remove-btn { background: #fff4f0; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 500; color: #b1624b; cursor: pointer; font-size: 0.75rem; }
-        .btn-add { background: transparent; border: 1.5px dashed #b9cfc5; padding: 10px 22px; border-radius: 40px; font-weight: 600; margin: 10px 0 20px; cursor: pointer; color: #2f5d4c; }
-        .btn-submit { background: #0b3b2f; color: white; border: none; padding: 14px 32px; border-radius: 40px; font-weight: 700; font-size: 0.9rem; cursor: pointer; float: right; }
-        hr { margin: 16px 0; border-color: #ecf3ef; }
-        footer { text-align: center; font-size: 0.7rem; color: #8ba39a; margin-top: 32px; }
-        .loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center; }
-        .loading.active { display: flex; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @media (max-width: 700px) { body { padding: 20px 16px; } .form-card { padding: 20px; } }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="official-header">
-        <div class="brand">
-            <div class="brand-logo">NCIG</div>
-            <div class="brand-text">
-                <h1>NCIG MALAYSIA</h1>
-                <p>Warranty & Quality Assurance · Official Claim Form</p>
-            </div>
-        </div>
-        <div class="badge-official">⚙️ Official Warranty System</div>
-    </div>
 
-    <div class="form-card">
-        <div class="form-title">
-            <h2>NCIG Warranty Claim Form</h2>
-            <p>Please fill in your personal details and list each defective product. Each product must include a batch number for quality analysis.</p>
-        </div>
-        <form id="warrantyForm">
-            <div class="row-2col">
-                <div class="field"><label>Full Name</label><input type="text" id="fullName" required></div>
-                <div class="field"><label>Phone Number</label><input type="tel" id="phoneNumber" required></div>
-                <div class="field"><label>Email</label><input type="email" id="emailAddress" required></div>
-                <div class="field"><label>Warranty Date</label><input type="date" id="warrantyDateForm" required></div>
-            </div>
-            <div style="margin: 10px 0 6px;"><strong style="color:#1f4d3e;">Defective Products List</strong></div>
-            <div id="productListContainer"></div>
-            <button type="button" id="addProductBtnForm" class="btn-add">+ Add Product (with batch & defect)</button>
-            <hr>
-            <button type="submit" class="btn-submit">Submit Warranty Claim</button>
-            <div style="clear:both"></div>
-        </form>
-    </div>
-    <footer>© NCIG Malaysia - Warranty data is stored locally and synced to Google Sheets for quality assurance.</footer>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Memuatkan data dari Google Sheets...</div>
 </div>
 
-<!-- Loading overlay -->
-<div id="loadingOverlay" class="loading">
-    <div class="spinner"></div>
+<header class="header">
+    <div class="logo-area">
+        <div class="logo-icon">📊</div>
+        <div><h1>NCIG Warranty Analytics</h1><span class="subtitle">Batch & Defect Tracking Dashboard</span></div>
+    </div>
+    <div class="refresh-area">
+        <span id="statusText">⏳ Memuatkan...</span>
+        <button class="refresh-btn" id="refreshBtn" onclick="loadData()">🔄 Refresh Data</button>
+    </div>
+</header>
+
+<div class="filter-bar">
+    <label>📅 Month:</label>
+    <select id="monthFilter"><option value="all">All Months</option></select>
+    <span id="recordCount" style="color:#64748b;font-size:0.8rem;"></span>
+</div>
+
+<div class="container">
+    <div class="error-box" id="errorBox"></div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-accent" style="background:#2563eb;"></div><div class="kpi-label">NCIG PRO</div><div class="kpi-value" id="kpiNcigPro" style="color:#2563eb;">-</div><div class="kpi-sub">Total Tickets</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:#10b981;"></div><div class="kpi-label">NCIG ONE</div><div class="kpi-value" id="kpiNcigOne" style="color:#10b981;">-</div><div class="kpi-sub">Total Tickets</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:#f59e0b;"></div><div class="kpi-label">NCIG CUBE</div><div class="kpi-value" id="kpiNcigCube" style="color:#f59e0b;">-</div><div class="kpi-sub">Total Tickets</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:#8b5cf6;"></div><div class="kpi-label">NPOD PRO</div><div class="kpi-value" id="kpiNpodPro" style="color:#8b5cf6;">-</div><div class="kpi-sub">Total Tickets</div></div>
+    </div>
+
+    <div class="chart-card">
+        <h3>📊 Total Tickets by Product</h3>
+        <div class="chart-wrapper"><canvas id="chartVolume"></canvas></div>
+    </div>
+
+    <!-- NCIG PRO -->
+    <div class="section-header"><div class="section-icon" style="background:#2563eb;">🔵</div><h2 style="color:#1d4ed8;">NCIG PRO</h2><span class="badge" style="background:#eff6ff;color:#2563eb;" id="ncigProBadge">0 records</span></div>
+    <div class="product-card ncigpro">
+        <h3>📋 Heatmap: Variant vs Defect</h3>
+        <div class="summary-row ncigpro" id="ncigProSummary"></div>
+        <div class="heatmap-table-wrapper"><table class="heatmap-table ncigpro-table" id="ncigProTable"><thead></thead><tbody></tbody></table></div>
+        <div class="pie-section"><h4>🥧 Defect Distribution – NCIG PRO</h4><div class="pie-wrapper"><canvas id="chartNcigProPie"></canvas></div></div>
+    </div>
+    <div class="batch-card ncigpro" style="margin-bottom:14px;">
+        <h4>📦 Batch Issues – NCIG PRO</h4>
+        <div class="heatmap-table-wrapper"><table class="batch-mini-table" id="ncigProBatchTable"><thead><tr><th>Variant</th><th>Batch Number</th><th>Defect Types</th><th>Total</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <!-- NCIG ONE -->
+    <div class="section-header"><div class="section-icon" style="background:#10b981;">🟢</div><h2 style="color:#059669;">NCIG ONE</h2><span class="badge" style="background:#ecfdf5;color:#059669;" id="ncigOneBadge">0 records</span></div>
+    <div class="product-card ncigone">
+        <h3>📋 Heatmap: Variant vs Defect</h3>
+        <div class="summary-row ncigone" id="ncigOneSummary"></div>
+        <div class="heatmap-table-wrapper"><table class="heatmap-table ncigone-table" id="ncigOneTable"><thead></thead><tbody></tbody></table></div>
+        <div class="pie-section"><h4>🥧 Defect Distribution – NCIG ONE</h4><div class="pie-wrapper"><canvas id="chartNcigOnePie"></canvas></div></div>
+    </div>
+    <div class="batch-card ncigone" style="margin-bottom:14px;">
+        <h4>📦 Batch Issues – NCIG ONE</h4>
+        <div class="heatmap-table-wrapper"><table class="batch-mini-table" id="ncigOneBatchTable"><thead><tr><th>Variant</th><th>Batch Number</th><th>Defect Types</th><th>Total</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <!-- NCIG CUBE -->
+    <div class="section-header"><div class="section-icon" style="background:#f59e0b;">🟡</div><h2 style="color:#b45309;">NCIG CUBE</h2><span class="badge" style="background:#fffbeb;color:#b45309;" id="ncigCubeBadge">0 records</span></div>
+    <div class="product-card ncigcube">
+        <h3>📋 Heatmap: Variant vs Defect</h3>
+        <div class="summary-row ncigcube" id="ncigCubeSummary"></div>
+        <div class="heatmap-table-wrapper"><table class="heatmap-table ncigcube-table" id="ncigCubeTable"><thead></thead><tbody></tbody></table></div>
+        <div class="pie-section"><h4>🥧 Defect Distribution – NCIG CUBE</h4><div class="pie-wrapper"><canvas id="chartNcigCubePie"></canvas></div></div>
+    </div>
+    <div class="batch-card ncigcube" style="margin-bottom:14px;">
+        <h4>📦 Batch Issues – NCIG CUBE</h4>
+        <div class="heatmap-table-wrapper"><table class="batch-mini-table" id="ncigCubeBatchTable"><thead><tr><th>Variant</th><th>Batch Number</th><th>Defect Types</th><th>Total</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <!-- NPOD PRO -->
+    <div class="section-header"><div class="section-icon" style="background:#8b5cf6;">🎯</div><h2 style="color:#5b21b6;">NPOD PRO</h2><span class="badge" style="background:#f5f3ff;color:#7c3aed;" id="npodBadge">0 records</span></div>
+    <div class="product-card npod">
+        <h3>📋 Heatmap: Variant vs Defect</h3>
+        <div class="summary-row npod" id="npodSummary"></div>
+        <div class="heatmap-table-wrapper"><table class="heatmap-table npod-table" id="npodTable"><thead></thead><tbody></tbody></table></div>
+        <div class="pie-section"><h4>🥧 Defect Distribution – NPOD PRO</h4><div class="pie-wrapper"><canvas id="chartNpodPie"></canvas></div></div>
+    </div>
+    <div class="batch-card npod" style="margin-bottom:14px;">
+        <h4>📦 Batch Issues – NPOD PRO</h4>
+        <div class="heatmap-table-wrapper"><table class="batch-mini-table" id="npodBatchTable"><thead><tr><th>Variant</th><th>Batch Number</th><th>Defect Types</th><th>Total</th></tr></thead><tbody></tbody></table></div>
+    </div>
 </div>
 
 <script>
-    // ======================= GOOGLE SHEETS CONFIGURATION =======================
-    // ⚠️ IMPORTANT: Replace this URL with your Google Apps Script Web App URL
-    const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbwZRHa-RVEjTXRkCh9cTBd_IC3M20qXeIMkOmAMu9Y90EIPsEpVb4liIQdtOScRSXU9/exec";
-    
-    // ======================= DATA MODEL & STORAGE =======================
-    let warrantyClaims = [];
-    
-    const productVariants = {
-        "NCIG PRO": ["Glacier", "Embered", "Pine", "Kendal", "Midnight", "Ncig Pro One Million", "Suzuka Yellow", "Sepang White", "Sangria", "Sage", "Tiffany", "Merdeka Edition"],
-        "NCIG ONE": ["Obsidian", "Pacific", "Scarlet"],
-        "NCIG CUBE": ["Ocean", "Ash", "Sky", "Slate", "Lava", "Neon"],
-        "NPOD PRO": ["Tobacco (Red)", "Banana Vanilla", "Tobacco (White)", "Pecan", "Berry Toast", "Coffee", "Grape", "Lemon", "Keladi", "Mango", "Berry", "Mint", "Strawberry", "Tea", "Plum", "Vanilla", "Watermelon Mint", "Blue Berry", "Guava"]
-    };
-    const defectList = [
-        "Activation Failure", "Automatic Activation", "Burnt", "Intermittent Firing", "Leaking", "Led",
-        "No Vibration", "Not able to charge", "Npod not detected", "Pin damage/stuck in", "Spitting",
-        "Tasteless", "Weird Taste", "Assembly Issues"
+(function(){
+    // ============================================================
+    // TETAPAN - Tukar SHEET_ID dan SHEET_NAME jika perlu
+    // ============================================================
+    const SHEET_ID = '1tSzEJWbMDYcFDMFnrkLeggH7QhkdykpRIreXGx74A3I';
+    const SHEET_NAME = 'Warranty Form';
+    const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+    // ============================================================
+
+    let rawData = [], filteredData = [], currentMonthFilter = 'all', chartInstances = {};
+
+    const PRODUCTS = ['NCIG PRO','NCIG ONE','NCIG CUBE','NPOD PRO'];
+    const PRODUCT_COLORS = {'NCIG PRO':'#2563eb','NCIG ONE':'#10b981','NCIG CUBE':'#f59e0b','NPOD PRO':'#8b5cf6'};
+    const DEFECT_PALETTE = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#78716c','#14b8a6','#a855f7','#84cc16'];
+
+    const PRODUCT_CONFIG = [
+        {name:'NCIG PRO',kpiId:'kpiNcigPro',badgeId:'ncigProBadge',summaryId:'ncigProSummary',tableId:'ncigProTable',tableClass:'ncigpro-table',batchTableId:'ncigProBatchTable',pieKey:'ncigProPie',pieCanvas:'chartNcigProPie'},
+        {name:'NCIG ONE',kpiId:'kpiNcigOne',badgeId:'ncigOneBadge',summaryId:'ncigOneSummary',tableId:'ncigOneTable',tableClass:'ncigone-table',batchTableId:'ncigOneBatchTable',pieKey:'ncigOnePie',pieCanvas:'chartNcigOnePie'},
+        {name:'NCIG CUBE',kpiId:'kpiNcigCube',badgeId:'ncigCubeBadge',summaryId:'ncigCubeSummary',tableId:'ncigCubeTable',tableClass:'ncigcube-table',batchTableId:'ncigCubeBatchTable',pieKey:'ncigCubePie',pieCanvas:'chartNcigCubePie'},
+        {name:'NPOD PRO',kpiId:'kpiNpodPro',badgeId:'npodBadge',summaryId:'npodSummary',tableId:'npodTable',tableClass:'npod-table',batchTableId:'npodBatchTable',pieKey:'npodPie',pieCanvas:'chartNpodPie'},
     ];
-    
-    function loadClaims() {
-        const stored = localStorage.getItem("ncig_warranty_backup");
-        if(stored) warrantyClaims = JSON.parse(stored);
-        else warrantyClaims = [];
-    }
-    function saveClaims() { localStorage.setItem("ncig_warranty_backup", JSON.stringify(warrantyClaims)); }
-    
-    function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
-    
-    // Send data to Google Sheets
-    async function sendToGoogleSheet(claimData) {
-        try {
-            const response = await fetch(GOOGLE_SHEETS_API_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Required for Google Apps Script
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(claimData)
-            });
-            return { success: true };
-        } catch(error) {
-            console.error("Google Sheets error:", error);
-            return { success: false, error: error.message };
-        }
-    }
-    
-    // Submit warranty claim
-    async function handleSubmit(e) {
-        e.preventDefault();
-        
-        const name = document.getElementById('fullName').value.trim();
-        const phone = document.getElementById('phoneNumber').value.trim();
-        const email = document.getElementById('emailAddress').value.trim();
-        const date = document.getElementById('warrantyDateForm').value;
-        
-        if(!name || !phone || !email || !date) { 
-            alert("Please complete all personal details."); 
-            return; 
-        }
-        
-        const rows = document.querySelectorAll('#productListContainer .product-entry');
-        if(rows.length === 0) { 
-            alert("Please add at least one defective product."); 
-            return; 
-        }
-        
-        let items = [], valid = true;
-        rows.forEach(row => {
-            const product = row.querySelector('.prod-select').value;
-            const variant = row.querySelector('.variant-select').value;
-            const batch = row.querySelector('.batch-input').value.trim();
-            const defect = row.querySelector('.defect-select').value;
-            if(!product || !variant || !batch || !defect) { 
-                valid = false; 
-                alert("Each product must include: Product, Variant, Batch Number & Defect."); 
-                return;
+
+    function showLoading(msg){ document.getElementById('loadingOverlay').classList.add('active'); document.getElementById('loadingText').textContent = msg||'Memuatkan data...'; document.getElementById('refreshBtn').disabled=true; }
+    function hideLoading(){ document.getElementById('loadingOverlay').classList.remove('active'); document.getElementById('refreshBtn').disabled=false; }
+    function showError(msg){ const b=document.getElementById('errorBox'); b.textContent=msg; b.classList.add('active'); }
+    function hideError(){ document.getElementById('errorBox').classList.remove('active'); }
+
+    function parseCSV(text){
+        const lines = text.split('\n').filter(l=>l.trim());
+        if(!lines.length) return [];
+        // Parse CSV dengan handle quoted fields
+        function parseLine(line){
+            const result=[]; let cur='', inQ=false;
+            for(let i=0;i<line.length;i++){
+                const c=line[i];
+                if(c==='"'){ inQ=!inQ; }
+                else if(c===','&&!inQ){ result.push(cur.trim()); cur=''; }
+                else{ cur+=c; }
             }
-            items.push({ product, variant, batch, defect });
-        });
-        if(!valid) return;
-        
-        const claimId = generateId();
-        const newClaim = { id: claimId, name, phone, email, date, items };
-        
-        // Show loading
-        document.getElementById('loadingOverlay').classList.add('active');
-        
-        try {
-            // Send to Google Sheets
-            const result = await sendToGoogleSheet({
-                claimId: claimId,
-                name: name,
-                phone: phone,
-                email: email,
-                date: date,
-                items: items
-            });
-            
-            // Save to local backup regardless of Google Sheets success
-            warrantyClaims.unshift(newClaim);
-            saveClaims();
-            
-            if(result.success) {
-                alert("Warranty claim submitted successfully!");
-            } else {
-                alert("Warranty claim saved locally but failed to sync with Google Sheets. Data will be synced later.");
-                console.error("Sync error:", result.error);
+            result.push(cur.trim());
+            return result;
+        }
+        const headers = parseLine(lines[0]).map(h=>h.replace(/^"|"$/g,'').trim());
+        const rows=[];
+        for(let i=1;i<lines.length;i++){
+            const vals=parseLine(lines[i]);
+            if(vals.length>=2){
+                const row={};
+                headers.forEach((h,idx)=>row[h]=(vals[idx]||'').replace(/^"|"$/g,'').trim());
+                rows.push(row);
             }
-            
-            // Reset form
-            document.getElementById('warrantyForm').reset();
-            document.getElementById('productListContainer').innerHTML = '';
-            renderProductRows();
-            document.getElementById('warrantyDateForm').valueAsDate = new Date();
-            
-        } catch(error) {
-            alert("Error submitting claim. Please try again.");
-            console.error(error);
-        } finally {
-            document.getElementById('loadingOverlay').classList.remove('active');
         }
+        return rows;
     }
-    
-    // Dynamic product row
-    let rowCounter = 0;
-    function createProductRow() {
-        const rowId = `prod_${Date.now()}_${rowCounter++}`;
-        const productOptions = Object.keys(productVariants).map(p => `<option value="${p}">${p}</option>`).join('');
-        const defectOptionsHtml = defectList.map(d => `<option value="${d}">${d}</option>`).join('');
-        const div = document.createElement('div');
-        div.className = 'product-entry';
-        div.setAttribute('data-rowid', rowId);
-        div.innerHTML = `
-            <div class="flex-row">
-                <div class="flex-field"><label style="font-size:0.7rem;">Product</label><select class="prod-select">${productOptions}</select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Variant / Flavor</label><select class="variant-select"><option value="">--Select--</option></select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" required></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Defect</label><select class="defect-select">${defectOptionsHtml}</select></div>
-                <div><button type="button" class="remove-btn">Remove</button></div>
-            </div>
-        `;
-        const prodSel = div.querySelector('.prod-select');
-        const varSel = div.querySelector('.variant-select');
-        const updateVariants = () => {
-            const selectedProd = prodSel.value;
-            const variants = productVariants[selectedProd] || [];
-            varSel.innerHTML = '<option value="">--Select Variant--</option>' + variants.map(v => `<option value="${v}">${v}</option>`).join('');
-        };
-        prodSel.addEventListener('change', updateVariants);
-        updateVariants();
-        div.querySelector('.remove-btn').addEventListener('click', () => div.remove());
-        return div;
-    }
-    
-    function renderProductRows() { 
-        const container = document.getElementById('productListContainer'); 
-        if(container.children.length === 0) container.appendChild(createProductRow()); 
-    }
-    
-    window.onload = () => {
-        loadClaims();
-        renderProductRows();
-        const todayStr = new Date().toISOString().split('T')[0];
-        document.getElementById('warrantyDateForm').value = todayStr;
-        document.getElementById('addProductBtnForm').addEventListener('click', () => document.getElementById('productListContainer').appendChild(createProductRow()));
-        document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
-        
-        // Check if Google Sheets URL is configured
-        if(GOOGLE_SHEETS_API_URL.includes("YOUR_DEPLOYMENT_ID")) {
-            console.warn("⚠️ Please configure your Google Sheets API URL in the script.");
+
+    function normalizeRow(row){
+        const n={};
+        // Cuba semua kemungkinan nama column
+        n['Produk'] = row['Product']||row['Produk']||row['product']||'';
+        n['Varian'] = row['Variant']||row['Varian']||row['variant']||'';
+        n['Defect'] = row['Defect']||row['defect']||row['Defect Type']||'';
+        n['Batch'] = row['Batch Number']||row['Batch']||row['BatchNumber']||row['batch']||'';
+        // Extract bulan dari Date
+        const dateVal = row['Date']||row['Timestamp']||row['date']||'';
+        if(dateVal){
+            const m = dateVal.match(/(\d{4}[-\/]\d{2})/);
+            if(m) n['Bulan'] = m[1].replace('/','-');
+            else{
+                // Cuba format lain seperti dd/mm/yyyy
+                const m2 = dateVal.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                if(m2) n['Bulan'] = `${m2[3]}-${m2[2].padStart(2,'0')}`;
+            }
         }
+        return n;
+    }
+
+    window.loadData = async function(){
+        showLoading('Memuatkan data dari Google Sheets...');
+        hideError();
+        try{
+            const res = await fetch(CSV_URL+'&_='+Date.now());
+            if(!res.ok) throw new Error(`HTTP ${res.status}`);
+            const text = await res.text();
+            if(!text||text.trim().length<10) throw new Error('Data kosong dari Google Sheets');
+            const parsed = parseCSV(text);
+            if(!parsed.length) throw new Error('Tiada data dijumpai dalam sheet');
+            rawData = parsed.map(normalizeRow).filter(r=>r['Produk']&&r['Defect']);
+            if(!rawData.length) throw new Error('Tiada data yang sah. Sila semak nama column dalam Google Sheets.');
+            const now = new Date();
+            document.getElementById('statusText').textContent = `✅ Dikemaskini: ${now.toLocaleTimeString('ms-MY')}`;
+            updateAll();
+        } catch(err){
+            hideLoading();
+            showError('❌ Gagal memuatkan data: '+err.message+'. Pastikan Google Sheets dah di-share kepada "Anyone with the link".');
+            document.getElementById('statusText').textContent = '❌ Gagal memuatkan';
+        }
+        hideLoading();
     };
+
+    function extractMonths(){
+        const s=new Set();
+        rawData.forEach(r=>{ if(r['Bulan']) s.add(r['Bulan']); });
+        const months=Array.from(s).sort();
+        const sel=document.getElementById('monthFilter');
+        sel.innerHTML='<option value="all">All Months</option>';
+        months.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o); });
+        sel.value=currentMonthFilter;
+    }
+
+    function applyFilter(){
+        filteredData = currentMonthFilter==='all' ? [...rawData] : rawData.filter(r=>r['Bulan']===currentMonthFilter);
+        document.getElementById('recordCount').textContent=`(${filteredData.length} records)`;
+    }
+
+    function getProductData(p){ return filteredData.filter(r=>r['Produk']===p); }
+    function getCounts(data){ const c={}; data.forEach(r=>{ const d=r['Defect']||'Unknown'; c[d]=(c[d]||0)+1; }); return c; }
+
+    function getCrossData(data){
+        const cross={}, dSet=new Set();
+        data.forEach(r=>{ const v=r['Varian']||'Unknown', d=r['Defect']||'Unknown'; dSet.add(d); if(!cross[v]) cross[v]={}; cross[v][d]=(cross[v][d]||0)+1; });
+        const variants=Object.keys(cross).sort((a,b)=>{ const sa=Object.values(cross[a]).reduce((s,x)=>s+x,0), sb=Object.values(cross[b]).reduce((s,x)=>s+x,0); return sb-sa; });
+        const defects=Array.from(dSet).sort();
+        return {cross,variants,defects};
+    }
+
+    function getHeatClass(v,max){ if(v===0||max===0) return 'zero'; const r=v/max; if(r>=0.6) return 'high'; if(r>=0.25) return 'medium'; return 'low'; }
+
+    function getBatchData(product){
+        const map={};
+        getProductData(product).forEach(r=>{ const b=r['Batch']||'Unknown', v=r['Varian']||'Unknown', d=r['Defect']||'Unknown'; const key=`${v}|||${b}`; if(!map[key]) map[key]={variant:v,batch:b,defects:{},total:0}; map[key].defects[d]=(map[key].defects[d]||0)+1; map[key].total++; });
+        return Object.values(map).sort((a,b)=>b.total-a.total);
+    }
+
+    function destroyChart(k){ if(chartInstances[k]){ chartInstances[k].destroy(); chartInstances[k]=null; } }
+
+    function renderKPI(){ PRODUCT_CONFIG.forEach(c=>{ document.getElementById(c.kpiId).textContent=getProductData(c.name).length; }); }
+
+    function renderVolumeChart(){
+        destroyChart('volume');
+        const counts={}; PRODUCTS.forEach(p=>counts[p]=getProductData(p).length);
+        const ctx=document.getElementById('chartVolume').getContext('2d');
+        chartInstances['volume']=new Chart(ctx,{type:'bar',data:{labels:PRODUCTS,datasets:[{label:'Tickets',data:PRODUCTS.map(p=>counts[p]),backgroundColor:PRODUCTS.map(p=>PRODUCT_COLORS[p]),borderRadius:8,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f1f5f9'}},x:{grid:{display:false}}}},plugins:[{id:'dl',afterDatasetsDraw(ch){const{ctx,data}=ch; ch.getDatasetMeta(0).data.forEach((b,i)=>{ctx.fillStyle='#0f172a';ctx.font='bold 14px Inter';ctx.textAlign='center';ctx.fillText(data.datasets[0].data[i],b.x,b.y-10);});}}]});
+    }
+
+    function renderProductHeatmap(cfg){
+        const data=getProductData(cfg.name);
+        document.getElementById(cfg.badgeId).textContent=data.length+' records';
+        const {cross,variants,defects}=getCrossData(data);
+        const totalByVar={};
+        variants.forEach(v=>totalByVar[v]=Object.values(cross[v]).reduce((s,x)=>s+x,0));
+        document.getElementById(cfg.summaryId).innerHTML=variants.map(v=>`<span class="summary-tag">${v}: <strong>${totalByVar[v]}</strong></span>`).join(' ');
+        let maxVal=0;
+        variants.forEach(v=>defects.forEach(d=>{ if((cross[v][d]||0)>maxVal) maxVal=cross[v][d]||0; }));
+        let thead='<tr><th class="varian-col">Variant</th>';
+        defects.forEach(d=>thead+=`<th>${d}</th>`);
+        thead+='<th class="total-col">TOTAL</th></tr>';
+        document.querySelector(`#${cfg.tableId} thead`).innerHTML=thead;
+        let tbody='';
+        variants.forEach(v=>{
+            tbody+='<tr>';
+            tbody+=`<td class="varian-col">${v}</td>`;
+            let rowTotal=0;
+            defects.forEach(d=>{ const val=cross[v][d]||0; rowTotal+=val; tbody+=`<td class="heat-cell ${getHeatClass(val,maxVal)}">${val>0?val:'·'}</td>`; });
+            tbody+=`<td class="total-col"><strong>${rowTotal}</strong></td></tr>`;
+        });
+        tbody+='<tr class="total-row"><td class="varian-col">🔥 TOTAL</td>';
+        let grandTotal=0;
+        defects.forEach(d=>{ let ct=0; variants.forEach(v=>ct+=cross[v][d]||0); grandTotal+=ct; tbody+=`<td><strong>${ct>0?ct:'·'}</strong></td>`; });
+        tbody+=`<td class="total-col"><strong>${grandTotal}</strong></td></tr>`;
+        document.querySelector(`#${cfg.tableId} tbody`).innerHTML=tbody;
+    }
+
+    function renderProductPie(cfg){
+        destroyChart(cfg.pieKey);
+        const data=getProductData(cfg.name);
+        const counts=getCounts(data);
+        const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+        if(!entries.length) return;
+        const labels=entries.map(e=>e[0]), values=entries.map(e=>e[1]), total=values.reduce((s,v)=>s+v,0);
+        const ctx=document.getElementById(cfg.pieCanvas).getContext('2d');
+        chartInstances[cfg.pieKey]=new Chart(ctx,{type:'pie',data:{labels,datasets:[{data:values,backgroundColor:DEFECT_PALETTE.slice(0,labels.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{padding:6,font:{size:10},usePointStyle:true,pointStyleWidth:8}},tooltip:{callbacks:{label:c=>{ const pct=((c.raw/total)*100).toFixed(1); return `${c.label}: ${c.raw} (${pct}%)`; }}}}},plugins:[{id:'pieLbl',afterDatasetsDraw(ch){const{ctx,data}=ch; const m=ch.getDatasetMeta(0); if(!m||!m.data) return; const t=data.datasets[0].data.reduce((s,v)=>s+v,0); m.data.forEach((a,i)=>{ const val=data.datasets[0].data[i], pct=((val/t)*100).toFixed(1); const angle=(a.startAngle+a.endAngle)/2; const radius=(a.outerRadius+a.innerRadius)/2*0.8; const x=a.x+Math.cos(angle)*radius, y=a.y+Math.sin(angle)*radius; ctx.fillStyle='#fff'; ctx.font='bold 11px Inter'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(val,x,y-6); ctx.font='9px Inter'; ctx.fillText(`(${pct}%)`,x,y+7); }); }}]});
+    }
+
+    function renderBatchTable(cfg){
+        const rows=getBatchData(cfg.name);
+        const tbody=document.getElementById(cfg.batchTableId).querySelector('tbody');
+        tbody.innerHTML='';
+        rows.forEach(row=>{ const defectList=Object.entries(row.defects).sort((a,b)=>b[1]-a[1]).map(([d,c])=>`${d} (${c})`).join(', '); const tr=document.createElement('tr'); if(row.total>=2) tr.style.background='#fef2f2'; tr.innerHTML=`<td>${row.variant}</td><td class="batch-col">${row.batch}</td><td class="defect-col">${defectList}</td><td><span class="count-badge">${row.total}</span></td>`; tbody.appendChild(tr); });
+    }
+
+    function updateAll(){
+        extractMonths(); applyFilter(); renderKPI(); renderVolumeChart();
+        PRODUCT_CONFIG.forEach(c=>{ renderProductHeatmap(c); renderProductPie(c); renderBatchTable(c); });
+    }
+
+    document.getElementById('monthFilter').addEventListener('change',function(e){
+        currentMonthFilter=e.target.value; applyFilter(); renderKPI(); renderVolumeChart();
+        PRODUCT_CONFIG.forEach(c=>{ renderProductHeatmap(c); renderProductPie(c); renderBatchTable(c); });
+    });
+
+    // Load data bila page buka
+    loadData();
+
+    // Auto refresh setiap 5 minit
+    setInterval(loadData, 5*60*1000);
+})();
 </script>
 </body>
 </html>
