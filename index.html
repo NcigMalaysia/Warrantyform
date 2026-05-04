@@ -191,7 +191,7 @@
             saveClaims();
             
             if(result.success) {
-                alert("Warranty claim submitted successfully! Data has been saved to Google Sheets.");
+                alert("Warranty claim submitted successfully!");
             } else {
                 alert("Warranty claim saved locally but failed to sync with Google Sheets. Data will be synced later.");
                 console.error("Sync error:", result.error);
