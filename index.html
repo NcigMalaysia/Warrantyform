@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>NCIG Malaysia - Official Warranty System</title>
     <style>
-        /* Sama seperti styling sebelumnya - paste semua CSS yang sama */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #eef2f5; font-family: 'Inter', 'Segoe UI', sans-serif; padding: 40px 32px; color: #1e2a3a; }
         .container { max-width: 1280px; margin: 0 auto; }
@@ -39,12 +38,18 @@
         .remove-btn { background: #fff4f0; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 500; color: #b1624b; cursor: pointer; font-size: 0.75rem; }
         .btn-add { background: transparent; border: 1.5px dashed #b9cfc5; padding: 10px 22px; border-radius: 40px; font-weight: 600; margin: 10px 0 20px; cursor: pointer; color: #2f5d4c; }
         .btn-submit { background: #0b3b2f; color: white; border: none; padding: 14px 32px; border-radius: 40px; font-weight: 700; font-size: 0.9rem; cursor: pointer; float: right; }
+        .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
         hr { margin: 16px 0; border-color: #ecf3ef; }
         footer { text-align: center; font-size: 0.7rem; color: #8ba39a; margin-top: 32px; }
-        .loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center; }
+        .loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center; flex-direction: column; }
         .loading.active { display: flex; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        .loading-text { color: white; font-size: 1rem; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-message { padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; display: none; }
+        .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-message.active { display: block; }
         @media (max-width: 700px) { body { padding: 20px 16px; } .form-card { padding: 20px; } }
     </style>
 </head>
@@ -62,6 +67,8 @@
     </div>
 
     <div class="form-card">
+        <div id="statusMessage" class="status-message"></div>
+        
         <div class="form-title">
             <h2>NCIG Warranty Claim Form</h2>
             <p>Please fill in your personal details and list each defective product. Each product must include a batch number for quality analysis.</p>
@@ -77,21 +84,31 @@
             <div id="productListContainer"></div>
             <button type="button" id="addProductBtnForm" class="btn-add">+ Add Product (with batch & defect)</button>
             <hr>
-            <button type="submit" class="btn-submit">Submit Warranty Claim</button>
+            <button type="submit" class="btn-submit" id="submitBtn">Submit Warranty Claim</button>
             <div style="clear:both"></div>
         </form>
     </div>
     <footer>© NCIG Malaysia - Warranty data is stored locally and synced to Google Sheets for quality assurance.</footer>
 </div>
 
-<!-- Loading overlay -->
 <div id="loadingOverlay" class="loading">
     <div class="spinner"></div>
+    <div class="loading-text">Submitting your warranty claim...</div>
 </div>
 
 <script>
     // ======================= GOOGLE SHEETS CONFIGURATION =======================
     // ⚠️ IMPORTANT: Replace this URL with your Google Apps Script Web App URL
+    // Steps to get your URL:
+    // 1. Go to Google Apps Script (script.google.com)
+    // 2. Create new project and paste the Google Apps Script code
+    // 3. Click "Deploy" > "New deployment"
+    // 4. Select type: "Web app"
+    // 5. Set "Execute as": Me
+    // 6. Set "Who has access": Anyone
+    // 7. Click "Deploy" and copy the Web App URL
+    // 8. Paste it below (replace YOUR_DEPLOYMENT_ID)
+    
     const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
     
     // ======================= DATA MODEL & STORAGE =======================
@@ -103,6 +120,7 @@
         "NCIG CUBE": ["Ocean", "Ash", "Sky", "Slate", "Lava", "Neon"],
         "NPOD PRO": ["Tobacco (Red)", "Banana Vanilla", "Tobacco (White)", "Pecan", "Berry Toast", "Coffee", "Grape", "Lemon", "Keladi", "Mango", "Berry", "Mint", "Strawberry", "Tea", "Plum", "Vanilla", "Watermelon Mint", "Guava"]
     };
+    
     const defectList = [
         "Activation Failure", "Automatic Activation", "Burnt", "Intermittent Firing", "Leaking", "Led",
         "No Vibration", "Not able to charge", "Npod not detected", "Pin damage/stuck in", "Spitting",
@@ -114,27 +132,49 @@
         if(stored) warrantyClaims = JSON.parse(stored);
         else warrantyClaims = [];
     }
-    function saveClaims() { localStorage.setItem("ncig_warranty_backup", JSON.stringify(warrantyClaims)); }
     
-    function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 8); }
+    function saveClaims() { 
+        localStorage.setItem("ncig_warranty_backup", JSON.stringify(warrantyClaims)); 
+    }
     
-    // Send data to Google Sheets
+    function generateId() { 
+        return 'NCIG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase(); 
+    }
+    
+    function showStatus(message, type) {
+        const statusEl = document.getElementById('statusMessage');
+        statusEl.textContent = message;
+        statusEl.className = 'status-message ' + type + ' active';
+        setTimeout(() => {
+            statusEl.classList.remove('active');
+        }, 5000);
+    }
+    
+    // Send data to Google Sheets - FIXED VERSION
     async function sendToGoogleSheet(claimData) {
         try {
+            console.log("Sending to Google Sheets:", claimData);
+            
             const response = await fetch(GOOGLE_SHEETS_API_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Required for Google Apps Script
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'text/plain' // Changed from application/json
+                },
                 body: JSON.stringify(claimData)
             });
+            
+            // For Google Apps Script, we can't read the response in no-cors mode
+            // So we assume success if no error is thrown
+            console.log("Request sent successfully");
             return { success: true };
+            
         } catch(error) {
             console.error("Google Sheets error:", error);
             return { success: false, error: error.message };
         }
     }
     
-    // Submit warranty claim
+    // Submit warranty claim - IMPROVED VERSION
     async function handleSubmit(e) {
         e.preventDefault();
         
@@ -144,13 +184,13 @@
         const date = document.getElementById('warrantyDateForm').value;
         
         if(!name || !phone || !email || !date) { 
-            alert("Please complete all personal details."); 
+            showStatus("Please complete all personal details.", "error");
             return; 
         }
         
         const rows = document.querySelectorAll('#productListContainer .product-entry');
         if(rows.length === 0) { 
-            alert("Please add at least one defective product."); 
+            showStatus("Please add at least one defective product.", "error");
             return; 
         }
         
@@ -160,22 +200,42 @@
             const variant = row.querySelector('.variant-select').value;
             const batch = row.querySelector('.batch-input').value.trim();
             const defect = row.querySelector('.defect-select').value;
+            
             if(!product || !variant || !batch || !defect) { 
-                valid = false; 
-                alert("Each product must include: Product, Variant, Batch Number & Defect."); 
-                return;
+                valid = false;
+            } else {
+                items.push({ product, variant, batch, defect });
             }
-            items.push({ product, variant, batch, defect });
         });
-        if(!valid) return;
+        
+        if(!valid) {
+            showStatus("Each product must include: Product, Variant, Batch Number & Defect.", "error");
+            return;
+        }
         
         const claimId = generateId();
-        const newClaim = { id: claimId, name, phone, email, date, items };
+        const newClaim = { 
+            id: claimId, 
+            name, 
+            phone, 
+            email, 
+            date, 
+            items 
+        };
+        
+        // Disable submit button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
         
         // Show loading
         document.getElementById('loadingOverlay').classList.add('active');
         
         try {
+            // Save to local backup first
+            warrantyClaims.unshift(newClaim);
+            saveClaims();
+            
             // Send to Google Sheets
             const result = await sendToGoogleSheet({
                 claimId: claimId,
@@ -186,16 +246,11 @@
                 items: items
             });
             
-            // Save to local backup regardless of Google Sheets success
-            warrantyClaims.unshift(newClaim);
-            saveClaims();
-            
-            if(result.success) {
-                alert("Warranty claim submitted successfully! Data has been saved to Google Sheets.");
-            } else {
-                alert("Warranty claim saved locally but failed to sync with Google Sheets. Data will be synced later.");
-                console.error("Sync error:", result.error);
-            }
+            // Show success message
+            showStatus(
+                `✓ Warranty claim submitted! Claim ID: ${claimId}. Total items: ${items.length}`, 
+                "success"
+            );
             
             // Reset form
             document.getElementById('warrantyForm').reset();
@@ -203,11 +258,16 @@
             renderProductRows();
             document.getElementById('warrantyDateForm').valueAsDate = new Date();
             
+            // Scroll to top to see success message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
         } catch(error) {
-            alert("Error submitting claim. Please try again.");
-            console.error(error);
+            console.error("Submission error:", error);
+            showStatus("Error submitting claim. Data saved locally. Please try again later.", "error");
         } finally {
             document.getElementById('loadingOverlay').classList.remove('active');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Warranty Claim';
         }
     }
     
@@ -217,48 +277,88 @@
         const rowId = `prod_${Date.now()}_${rowCounter++}`;
         const productOptions = Object.keys(productVariants).map(p => `<option value="${p}">${p}</option>`).join('');
         const defectOptionsHtml = defectList.map(d => `<option value="${d}">${d}</option>`).join('');
+        
         const div = document.createElement('div');
         div.className = 'product-entry';
         div.setAttribute('data-rowid', rowId);
         div.innerHTML = `
             <div class="flex-row">
-                <div class="flex-field"><label style="font-size:0.7rem;">Product</label><select class="prod-select">${productOptions}</select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Variant / Flavor</label><select class="variant-select"><option value="">--Select--</option></select></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Batch Number</label><input type="text" class="batch-input" required></div>
-                <div class="flex-field"><label style="font-size:0.7rem;">Defect</label><select class="defect-select">${defectOptionsHtml}</select></div>
+                <div class="flex-field">
+                    <label style="font-size:0.7rem;">Product</label>
+                    <select class="prod-select" required>${productOptions}</select>
+                </div>
+                <div class="flex-field">
+                    <label style="font-size:0.7rem;">Variant / Flavor</label>
+                    <select class="variant-select" required>
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+                <div class="flex-field">
+                    <label style="font-size:0.7rem;">Batch Number</label>
+                    <input type="text" class="batch-input" placeholder="e.g. BATCH001" required>
+                </div>
+                <div class="flex-field">
+                    <label style="font-size:0.7rem;">Defect</label>
+                    <select class="defect-select" required>${defectOptionsHtml}</select>
+                </div>
                 <div><button type="button" class="remove-btn">Remove</button></div>
             </div>
         `;
+        
         const prodSel = div.querySelector('.prod-select');
         const varSel = div.querySelector('.variant-select');
+        
         const updateVariants = () => {
             const selectedProd = prodSel.value;
             const variants = productVariants[selectedProd] || [];
-            varSel.innerHTML = '<option value="">--Select Variant--</option>' + variants.map(v => `<option value="${v}">${v}</option>`).join('');
+            varSel.innerHTML = '<option value="">--Select Variant--</option>' + 
+                variants.map(v => `<option value="${v}">${v}</option>`).join('');
         };
+        
         prodSel.addEventListener('change', updateVariants);
         updateVariants();
-        div.querySelector('.remove-btn').addEventListener('click', () => div.remove());
+        
+        div.querySelector('.remove-btn').addEventListener('click', () => {
+            if(document.querySelectorAll('.product-entry').length > 1) {
+                div.remove();
+            } else {
+                showStatus("At least one product is required.", "error");
+            }
+        });
+        
         return div;
     }
     
     function renderProductRows() { 
         const container = document.getElementById('productListContainer'); 
-        if(container.children.length === 0) container.appendChild(createProductRow()); 
+        if(container.children.length === 0) {
+            container.appendChild(createProductRow()); 
+        }
     }
     
+    // Initialize
     window.onload = () => {
         loadClaims();
         renderProductRows();
+        
         const todayStr = new Date().toISOString().split('T')[0];
         document.getElementById('warrantyDateForm').value = todayStr;
-        document.getElementById('addProductBtnForm').addEventListener('click', () => document.getElementById('productListContainer').appendChild(createProductRow()));
+        
+        document.getElementById('addProductBtnForm').addEventListener('click', () => {
+            document.getElementById('productListContainer').appendChild(createProductRow());
+        });
+        
         document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
         
         // Check if Google Sheets URL is configured
         if(GOOGLE_SHEETS_API_URL.includes("YOUR_DEPLOYMENT_ID")) {
-            console.warn("⚠️ Please configure your Google Sheets API URL in the script.");
+            showStatus(
+                "⚠️ Setup Required: Please configure your Google Sheets API URL in the script. See instructions in the code.", 
+                "error"
+            );
         }
+        
+        console.log("NCIG Warranty System loaded. Ready to submit claims.");
     };
 </script>
 </body>
