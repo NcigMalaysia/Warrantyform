@@ -1,6 +1,44 @@
 // Replace the existing doPost and jsonResponse functions in the warranty
 // Apps Script project, then deploy a new version of its existing web app.
 // Column M of the User and Seller tabs is reserved for Claim ID.
+// doGet confirms a saved Claim ID without returning customer details.
+function doGet(e) {
+  const params = (e && e.parameter) || {};
+  const callback = String(params.callback || '');
+  if (!/^ncigClaimConfirm_\d+_[a-z0-9]{6}$/.test(callback)) {
+    return ContentService.createTextOutput('Invalid callback.');
+  }
+
+  const claimId = String(params.claimId || '').trim();
+  const category = String(params.category || '').trim();
+  let result = { confirmed: false };
+  try {
+    if (params.action !== 'confirm' ||
+        !/^NCIG-\d+-[A-Z0-9]{6}$/.test(claimId) ||
+        (category !== 'User' && category !== 'Seller')) {
+      throw new Error('Invalid confirmation request.');
+    }
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(category);
+    if (!sheet) throw new Error('Category tab not found.');
+    if (sheet.getMaxColumns() >= 13 && sheet.getLastRow() > 1) {
+      const matches = sheet.getRange(2, 13, sheet.getLastRow() - 1, 1)
+        .createTextFinder(claimId).matchEntireCell(true).findAll();
+      if (matches.length > 0) {
+        result = {
+          confirmed: true,
+          claimId: claimId,
+          savedTo: category,
+          totalItems: matches.length
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Claim confirmation error:', error);
+  }
+  return ContentService.createTextOutput(callback + '(' + JSON.stringify(result) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
