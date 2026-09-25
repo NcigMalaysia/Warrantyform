@@ -53,6 +53,12 @@ function doPost(e) {
       if (header && header !== 'Claim ID') {
         throw new Error('Column M is already used. Please reserve it for Claim ID.');
       }
+      if (!header && sheet.getLastRow() > 1) {
+        const existingValues = sheet.getRange(2, 13, sheet.getLastRow() - 1, 1).getValues();
+        if (existingValues.some(function (row) { return String(row[0] || '').trim() !== ''; })) {
+          throw new Error('Column M contains existing data. Please reserve it for Claim ID.');
+        }
+      }
       if (!header) headerCell.setValue('Claim ID');
 
       const lastRow = sheet.getLastRow();
