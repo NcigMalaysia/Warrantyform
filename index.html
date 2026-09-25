@@ -199,43 +199,78 @@
         statusEl.className = 'status-message ' + type + ' active';
     }
     
-    // Send data to Google Sheets and verify the response
+    // Apps Script ContentService redirects responses to googleusercontent.com.
+    // A cross-origin POST can save the rows while its response is unreadable.
+    // Confirm the Claim ID with a read-only JSONP request before reporting success.
+    function checkClaim(claimData) {
+        return new Promise((resolve, reject) => {
+            const callbackName = 'ncigClaimConfirm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+            const script = document.createElement('script');
+            let finished = false;
+            const timer = setTimeout(() => finish(new Error('Claim confirmation timed out.')), 10000);
+
+            function finish(error, result) {
+                if(finished) return;
+                finished = true;
+                clearTimeout(timer);
+                script.remove();
+                delete window[callbackName];
+                if(error) reject(error);
+                else resolve(result);
+            }
+
+            window[callbackName] = result => finish(null, result);
+            script.onerror = () => finish(new Error('Claim confirmation is unavailable.'));
+            script.onload = () => {
+                if(!finished) finish(new Error('Claim confirmation returned no result.'));
+            };
+            const params = new URLSearchParams({
+                action: 'confirm',
+                claimId: claimData.claimId,
+                category: claimData.category,
+                callback: callbackName
+            });
+            script.src = GOOGLE_SHEETS_API_URL + '?' + params;
+            document.head.appendChild(script);
+        });
+    }
+
+    function pause(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    // Send once, then check the saved Claim ID without submitting again.
     async function sendToGoogleSheet(claimData) {
         try {
-            const response = await fetch(GOOGLE_SHEETS_API_URL, {
+            await fetch(GOOGLE_SHEETS_API_URL, {
                 method: 'POST',
+                mode: 'no-cors',
                 headers: { 
                     'Content-Type': 'text/plain;charset=utf-8'
                 },
                 body: JSON.stringify(claimData)
             });
-            
-            if(!response.ok) {
-                throw new Error(`Google Sheets returned HTTP ${response.status}`);
-            }
-            
-            const responseText = await response.text();
-            let serverResult;
-            try {
-                serverResult = JSON.parse(responseText);
-            } catch(error) {
-                throw new Error('Google Sheets did not return a valid confirmation.');
-            }
-
-            // A successful HTTP response alone does not prove that the row was saved.
-            if(serverResult?.success !== true ||
-               serverResult.claimId !== claimData.claimId ||
-               serverResult.savedTo !== claimData.category ||
-               serverResult.totalItems !== claimData.items.length) {
-                throw new Error(serverResult?.message || serverResult?.error || 'Google Sheets did not confirm this claim ID.');
-            }
-
-            return { success: true, data: serverResult };
-            
         } catch(error) {
-            console.error("Google Sheets error:", error);
-            return { success: false, error: error.message };
+            // The POST may have reached Apps Script even when the response failed.
+            console.warn('Submission response unavailable; checking Claim ID:', error);
         }
+
+        let lastError;
+        for(let attempt = 0; attempt < 3; attempt++) {
+            if(attempt) await pause(1200);
+            try {
+                const confirmation = await checkClaim(claimData);
+                if(confirmation?.confirmed === true &&
+                   confirmation.claimId === claimData.claimId &&
+                   confirmation.savedTo === claimData.category &&
+                   confirmation.totalItems === claimData.items.length) {
+                    return { success: true, data: confirmation };
+                }
+                lastError = new Error('Claim ID not confirmed in Google Sheets.');
+            } catch(error) {
+                lastError = error;
+            }
+        }
+        console.error('Google Sheets confirmation error:', lastError);
+        return { success: false, error: lastError?.message || 'Claim confirmation failed.' };
     }
     
     // Submit warranty claim - IMPROVED VERSION
