@@ -16,10 +16,11 @@
         }
         .brand { display: flex; align-items: center; gap: 14px; }
         .brand-logo {
-            background: #0b3b2f; width: 48px; height: 48px; border-radius: 14px;
+            background: #000; width: 48px; height: 48px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 20px; color: #d4af37;
+            flex: none; overflow: hidden;
         }
+        .brand-logo img { width: 72px; height: 72px; max-width: none; flex: none; }
         .brand-text h1 { font-size: 1.6rem; font-weight: 600; color: #0b3b2f; }
         .brand-text p { font-size: 0.7rem; color: #5a6e6a; }
         .badge-official { background: #f8f9fa; padding: 6px 18px; border-radius: 30px; font-size: 0.75rem; color: #2c5a4a; border: 1px solid #d0dfd9; }
@@ -70,7 +71,7 @@
 <div class="container">
     <div class="official-header">
         <div class="brand">
-            <div class="brand-logo">NCIG</div>
+            <div class="brand-logo"><img src="assets/ncig-logo.png" alt="NCIG logo" width="72" height="72"></div>
             <div class="brand-text">
                 <h1>NCIG MALAYSIA</h1>
                 <p>Warranty & Quality Assurance · Official Claim Form</p>
