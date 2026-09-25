@@ -238,6 +238,8 @@
     async function handleSubmit(e) {
         e.preventDefault();
         document.getElementById('statusMessage').className = 'status-message';
+        document.getElementById('claimConfirmation').hidden = true;
+        document.getElementById('copyFeedback').textContent = '';
         
         const name = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phoneNumber').value.trim();
@@ -284,8 +286,6 @@
         
         // Show loading
         document.getElementById('loadingOverlay').classList.add('active');
-        document.getElementById('claimConfirmation').hidden = true;
-        document.getElementById('copyFeedback').textContent = '';
         
         try {
             // Send to Google Sheets
