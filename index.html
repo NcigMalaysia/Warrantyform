@@ -157,6 +157,7 @@
     const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbyZkLm0bGKJMTFBvFrL1N6WjaWFolPsLyMLl05_grQHjZuxcMbly1CjBkW9skb_dgvc/exec";
     
     // ======================= DATA MODEL =======================
+    let pendingClaim = null;
     
     const productVariants = {
         "NCIG PRO": ["Glacier", "Embered", "Pine", "Kendal", "Midnight", "Ncig Pro One Million", "Suzuka Yellow", "Sepang White", "Sangria", "Sage", "Tiffany", "Merdeka Edition"],
@@ -222,7 +223,10 @@
             }
 
             // A successful HTTP response alone does not prove that the row was saved.
-            if(serverResult?.success !== true || serverResult.claimId !== claimData.claimId) {
+            if(serverResult?.success !== true ||
+               serverResult.claimId !== claimData.claimId ||
+               serverResult.savedTo !== claimData.category ||
+               serverResult.totalItems !== claimData.items.length) {
                 throw new Error(serverResult?.message || serverResult?.error || 'Google Sheets did not confirm this claim ID.');
             }
 
@@ -278,7 +282,10 @@
             return;
         }
         
-        const claimId = generateId();
+        const claimDetails = { name, phone, email, date, address, category, items };
+        const signature = JSON.stringify(claimDetails);
+        const claimId = pendingClaim?.signature === signature ? pendingClaim.claimId : generateId();
+        pendingClaim = { signature, claimId };
         // Disable submit button
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
@@ -310,6 +317,7 @@
             // Keep the confirmed claim ID on screen until the next submission.
             document.getElementById('confirmedClaimId').textContent = result.data.claimId;
             document.getElementById('claimConfirmation').hidden = false;
+            pendingClaim = null;
             
             // Reset form
             document.getElementById('warrantyForm').reset();
@@ -322,7 +330,7 @@
             
         } catch(error) {
             console.error("Submission error:", error);
-            showStatus("We could not confirm your claim. Your entries are still in the form. Please contact support before retrying if you think it may have been submitted.", "error");
+            showStatus(`We could not confirm claim ${claimId}. Your entries remain in the form. Please contact support before retrying if you think it may have been submitted.`, "error");
         } finally {
             document.getElementById('loadingOverlay').classList.remove('active');
             submitBtn.disabled = false;
