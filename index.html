@@ -44,7 +44,8 @@
         .batch-help summary:focus-visible { outline: 2px solid #d4af37; outline-offset: -2px; }
         .batch-help-content { padding: 0 16px 16px; }
         .batch-help-content p { color: #5f7a70; font-size: 0.82rem; line-height: 1.5; margin-bottom: 12px; }
-        .batch-help-content img { display: block; max-width: 100%; max-height: 400px; width: auto; height: auto; border-radius: 10px; border: 1px solid #d8e5df; }
+        .batch-help-content img { display: block; max-width: 100%; max-height: 600px; width: auto; height: auto; border-radius: 10px; border: 1px solid #d8e5df; }
+        .batch-guide-link { display: inline-block; max-width: 100%; }
         .flex-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
         .flex-field { flex: 1; min-width: 150px; }
         .remove-btn { background: #fff4f0; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 500; color: #b1624b; cursor: pointer; font-size: 0.75rem; }
@@ -83,7 +84,7 @@
         
         <div class="form-title">
             <h2>NCIG Warranty Claim Form</h2>
-            <p>Please fill in your personal details and list each defective product. Each product must include a batch number for quality analysis.</p>
+            <p>Please fill in your personal details and list each defective product. Enter the batch or serial number shown on each product. Use the photo guide if you need help finding it.</p>
         </div>
         <form id="warrantyForm">
             <fieldset class="claimant-type">
@@ -145,19 +146,18 @@
     
     const productVariants = {
         "NCIG PRO": ["Glacier", "Embered", "Pine", "Kendal", "Midnight", "Ncig Pro One Million", "Suzuka Yellow", "Sepang White", "Sangria", "Sage", "Tiffany", "Merdeka Edition"],
+        "NCIG ONE": ["NCIG ONE"],
         "NCIG CUBE": ["Ocean", "Ash", "Sky", "Slate", "Lava", "Neon"],
         "NCIG ULTRA": ["Enigma", "Odyssey"],
         "NPOD PRO": ["Tobacco (Red)", "Banana Vanilla", "Tobacco (White)", "Pecan", "Berry Toast", "Coffee", "Grape", "Lemon", "Keladi", "Mango", "Berry", "Mint", "Strawberry", "Tea", "Plum", "Vanilla", "Watermelon Mint", "Guava", "Apple Berry", "Blueberry", "Tea (icy)"]
     };
 
-    // Add verified, close-up reference photos to assets/batch-numbers/ and set
-    // the corresponding image path here. Leave image null until the photo has
-    // been checked for the current product; no location is guessed in the UI.
     const batchGuides = {
-        "NCIG PRO": { image: null, alt: "Contoh lokasi nombor batch pada NCIG PRO" },
-        "NCIG CUBE": { image: null, alt: "Contoh lokasi nombor batch pada NCIG CUBE" },
-        "NCIG ULTRA": { image: null, alt: "Contoh lokasi nombor batch pada NCIG ULTRA" },
-        "NPOD PRO": { image: null, alt: "Contoh lokasi nombor batch pada NPOD PRO" }
+        "NCIG PRO": { image: "assets/batch-numbers/ncig-device.webp", type: "Serial Number", location: "Look along the top edge of the device for the printed code.", alt: "Example serial number printed along the top edge of an NCIG device" },
+        "NCIG ONE": { image: "assets/batch-numbers/ncig-device.webp", type: "Serial Number", location: "Look along the top edge of the device for the printed code.", alt: "Example serial number printed along the top edge of an NCIG device" },
+        "NCIG CUBE": { image: "assets/batch-numbers/ncig-cube.webp", type: "Batch Number", location: "Look on the bottom of the device beside the charging port for the 10-digit code.", alt: "Example batch number on the bottom of NCIG CUBE beside its charging port" },
+        "NCIG ULTRA": { image: "assets/batch-numbers/ncig-device.webp", type: "Serial Number", location: "Look along the top edge of the device for the printed code.", alt: "Example serial number printed along the top edge of an NCIG device" },
+        "NPOD PRO": { image: "assets/batch-numbers/npod-pro.webp", type: "Pod Serial Number", location: "Look for the code printed on the pod body.", alt: "Example pod serial number printed on an NPOD pod" }
     };
     
     const defectList = [
@@ -275,7 +275,7 @@
         });
         
         if(!valid) {
-            showStatus("Each product must include: Product, Variant, Batch Number & Defect.", "error");
+            showStatus("Each product must include: Product, Variant, Batch or Serial Number & Defect.", "error");
             return;
         }
         
@@ -371,8 +371,8 @@
                     </select>
                 </div>
                 <div class="flex-field">
-                    <label style="font-size:0.7rem;">Batch Number</label>
-                    <input type="text" class="batch-input" placeholder="e.g. BATCH001" required>
+                    <label class="batch-label" style="font-size:0.7rem;">Batch / Serial Number</label>
+                    <input type="text" class="batch-input" placeholder="Enter the code on your product" required>
                 </div>
                 <div class="flex-field">
                     <label style="font-size:0.7rem;">Defect</label>
@@ -381,10 +381,12 @@
                 <div><button type="button" class="remove-btn">Remove</button></div>
             </div>
             <details class="batch-help" hidden>
-                <summary>Where is the batch number? See photo</summary>
+                <summary>Where is the batch / serial number? See photo</summary>
                 <div class="batch-help-content">
                     <p class="batch-guide-label"></p>
-                    <img class="batch-guide-image" loading="lazy">
+                    <a class="batch-guide-link" target="_blank" rel="noopener noreferrer" aria-label="Open reference photo at full size">
+                        <img class="batch-guide-image" loading="lazy">
+                    </a>
                 </div>
             </details>
         `;
@@ -397,19 +399,25 @@
             const variants = productVariants[selectedProd] || [];
             varSel.innerHTML = '<option value="">--Select Variant--</option>' + 
                 variants.map(v => `<option value="${v}">${v}</option>`).join('');
+            if(selectedProd === 'NCIG ONE') varSel.value = 'NCIG ONE';
 
             const guide = batchGuides[selectedProd];
             const help = div.querySelector('.batch-help');
             const photo = div.querySelector('.batch-guide-image');
+            const link = div.querySelector('.batch-guide-link');
             help.hidden = !guide?.image;
             help.open = false;
             if(guide?.image) {
-                div.querySelector('.batch-guide-label').textContent = `Batch number example for ${selectedProd}. Enter the code printed on your own product above.`;
+                div.querySelector('.batch-label').textContent = guide.type;
+                div.querySelector('.batch-guide-label').textContent = `${guide.location} The photo shows an example; enter the code from your own product. Tap the photo to enlarge it.`;
                 photo.src = guide.image;
                 photo.alt = guide.alt;
+                link.href = guide.image;
             } else {
+                div.querySelector('.batch-label').textContent = 'Batch / Serial Number';
                 photo.removeAttribute('src');
                 photo.removeAttribute('alt');
+                link.removeAttribute('href');
             }
         };
         
