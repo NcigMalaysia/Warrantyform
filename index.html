@@ -64,6 +64,13 @@
         .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .status-message.active { display: block; }
+        .claim-confirmation { margin-bottom: 20px; padding: 20px; border-radius: 14px; border: 1px solid #a4d6b0; background: #e9f7ed; color: #155724; }
+        .claim-confirmation[hidden] { display: none; }
+        .claim-confirmation h3 { font-size: 1rem; margin-bottom: 8px; }
+        .claim-confirmation p { font-size: 0.85rem; margin-bottom: 12px; }
+        .claim-id { display: inline-block; font-size: 1rem; font-weight: 700; overflow-wrap: anywhere; margin-right: 10px; }
+        .copy-claim-btn { border: 1px solid #1f4d3e; background: white; color: #1f4d3e; border-radius: 24px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
+        .copy-feedback { margin-top: 10px; min-height: 1em; }
         @media (max-width: 700px) { body { padding: 20px 16px; } .form-card { padding: 20px; } }
     </style>
 </head>
@@ -82,6 +89,13 @@
 
     <div class="form-card">
         <div id="statusMessage" class="status-message"></div>
+        <section id="claimConfirmation" class="claim-confirmation" aria-labelledby="claimConfirmationTitle" hidden>
+            <h3 id="claimConfirmationTitle">Warranty claim submitted</h3>
+            <p>Keep this claim ID for your records. You can copy it below.</p>
+            <span id="confirmedClaimId" class="claim-id"></span>
+            <button type="button" id="copyClaimId" class="copy-claim-btn">Copy Claim ID</button>
+            <p id="copyFeedback" class="copy-feedback" role="status" aria-live="polite"></p>
+        </section>
         
         <div class="form-title">
             <h2>NCIG Warranty Claim Form</h2>
@@ -119,7 +133,7 @@
             <div style="clear:both"></div>
         </form>
     </div>
-    <footer>© NCIG Malaysia - Warranty data is stored locally and synced to Google Sheets for quality assurance.</footer>
+    <footer>© NCIG Malaysia - Warranty claims are submitted to our quality assurance team.</footer>
 </div>
 
 <div id="loadingOverlay" class="loading">
@@ -142,8 +156,8 @@
     
     const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbyZkLm0bGKJMTFBvFrL1N6WjaWFolPsLyMLl05_grQHjZuxcMbly1CjBkW9skb_dgvc/exec";
     
-    // ======================= DATA MODEL & STORAGE =======================
-    let warrantyClaims = [];
+    // ======================= DATA MODEL =======================
+    let pendingClaim = null;
     
     const productVariants = {
         "NCIG PRO": ["Glacier", "Embered", "Pine", "Kendal", "Midnight", "Ncig Pro One Million", "Suzuka Yellow", "Sepang White", "Sangria", "Sage", "Tiffany", "Merdeka Edition"],
@@ -167,14 +181,12 @@
         "Tasteless", "Weird Taste", "Assembly Issues"
     ];
     
-    function loadClaims() {
-        const stored = localStorage.getItem("ncig_warranty_backup");
-        if(stored) warrantyClaims = JSON.parse(stored);
-        else warrantyClaims = [];
-    }
-    
-    function saveClaims() { 
-        localStorage.setItem("ncig_warranty_backup", JSON.stringify(warrantyClaims)); 
+    function clearLegacyBackup() {
+        try {
+            localStorage.removeItem('ncig_warranty_backup');
+        } catch(error) {
+            console.warn('Could not remove legacy browser backup:', error);
+        }
     }
     
     function generateId() { 
@@ -185,16 +197,11 @@
         const statusEl = document.getElementById('statusMessage');
         statusEl.textContent = message;
         statusEl.className = 'status-message ' + type + ' active';
-        setTimeout(() => {
-            statusEl.classList.remove('active');
-        }, 5000);
     }
     
     // Send data to Google Sheets and verify the response
     async function sendToGoogleSheet(claimData) {
         try {
-            console.log("Sending to Google Sheets:", claimData);
-            
             const response = await fetch(GOOGLE_SHEETS_API_URL, {
                 method: 'POST',
                 headers: { 
@@ -208,29 +215,21 @@
             }
             
             const responseText = await response.text();
-            let serverResult = null;
-            
-            if(responseText.trim()) {
-                try {
-                    serverResult = JSON.parse(responseText);
-                } catch(error) {
-                    console.warn("Google Sheets returned a non-JSON response:", responseText);
-                }
+            let serverResult;
+            try {
+                serverResult = JSON.parse(responseText);
+            } catch(error) {
+                throw new Error('Google Sheets did not return a valid confirmation.');
             }
-            
-            if(
-                serverResult &&
-                (serverResult.success === false ||
-                 String(serverResult.status || '').toLowerCase() === 'error')
-            ) {
-                throw new Error(
-                    serverResult.message ||
-                    serverResult.error ||
-                    'Google Sheets rejected the warranty claim.'
-                );
+
+            // A successful HTTP response alone does not prove that the row was saved.
+            if(serverResult?.success !== true ||
+               serverResult.claimId !== claimData.claimId ||
+               serverResult.savedTo !== claimData.category ||
+               serverResult.totalItems !== claimData.items.length) {
+                throw new Error(serverResult?.message || serverResult?.error || 'Google Sheets did not confirm this claim ID.');
             }
-            
-            console.log("Google Sheets confirmed the request");
+
             return { success: true, data: serverResult };
             
         } catch(error) {
@@ -242,6 +241,9 @@
     // Submit warranty claim - IMPROVED VERSION
     async function handleSubmit(e) {
         e.preventDefault();
+        document.getElementById('statusMessage').className = 'status-message';
+        document.getElementById('claimConfirmation').hidden = true;
+        document.getElementById('copyFeedback').textContent = '';
         
         const name = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phoneNumber').value.trim();
@@ -280,18 +282,10 @@
             return;
         }
         
-        const claimId = generateId();
-        const newClaim = { 
-            id: claimId, 
-            name, 
-            phone, 
-            email, 
-            date, 
-            address,
-            category,
-            items 
-        };
-        
+        const claimDetails = { name, phone, email, date, address, category, items };
+        const signature = JSON.stringify(claimDetails);
+        const claimId = pendingClaim?.signature === signature ? pendingClaim.claimId : generateId();
+        pendingClaim = { signature, claimId };
         // Disable submit button
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
@@ -301,10 +295,6 @@
         document.getElementById('loadingOverlay').classList.add('active');
         
         try {
-            // Save to local backup first
-            warrantyClaims.unshift(newClaim);
-            saveClaims();
-            
             // Send to Google Sheets
             const result = await sendToGoogleSheet({
                 claimId: claimId,
@@ -324,11 +314,10 @@
                 );
             }
             
-            // Show success message only after Google Sheets confirms the request
-            showStatus(
-                `✓ Warranty claim submitted! Claim ID: ${claimId}. Total items: ${items.length}`, 
-                "success"
-            );
+            // Keep the confirmed claim ID on screen until the next submission.
+            document.getElementById('confirmedClaimId').textContent = result.data.claimId;
+            document.getElementById('claimConfirmation').hidden = false;
+            pendingClaim = null;
             
             // Reset form
             document.getElementById('warrantyForm').reset();
@@ -341,7 +330,7 @@
             
         } catch(error) {
             console.error("Submission error:", error);
-            showStatus("Unable to submit your warranty claim. A local backup was saved. Please check your connection and try again.", "error");
+            showStatus(`We could not confirm claim ${claimId}. Your entries remain in the form. Please contact support before retrying if you think it may have been submitted.`, "error");
         } finally {
             document.getElementById('loadingOverlay').classList.remove('active');
             submitBtn.disabled = false;
@@ -445,7 +434,7 @@
     
     // Initialize
     window.onload = () => {
-        loadClaims();
+        clearLegacyBackup();
         renderProductRows();
         
         const todayStr = new Date().toISOString().split('T')[0];
@@ -456,6 +445,17 @@
         });
         
         document.getElementById('warrantyForm').addEventListener('submit', handleSubmit);
+        document.getElementById('copyClaimId').addEventListener('click', async () => {
+            const claimId = document.getElementById('confirmedClaimId').textContent;
+            const feedback = document.getElementById('copyFeedback');
+            try {
+                if(!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+                await navigator.clipboard.writeText(claimId);
+                feedback.textContent = 'Claim ID copied.';
+            } catch(error) {
+                feedback.textContent = 'Unable to copy automatically. Please select and copy the claim ID above.';
+            }
+        });
         
         // Check if Google Sheets URL is configured
         if(GOOGLE_SHEETS_API_URL.includes("YOUR_DEPLOYMENT_ID")) {
