@@ -33,6 +33,7 @@
         .field label { font-weight: 600; font-size: 0.75rem; color: #2f5d4c; text-transform: uppercase; letter-spacing: 0.6px; }
         .field input, .field select { padding: 12px 16px; border: 1px solid #cfdfd8; border-radius: 14px; font-size: 0.9rem; background: white; }
         .field input:focus, .field select:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 0 2px rgba(212,175,55,0.2); }
+        .field input.locked-date:disabled { color: #1e2a3a; background: #f1f5f3; border-color: #d8e5df; cursor: not-allowed; opacity: 1; }
         .claimant-type { margin-bottom: 28px; padding: 16px 18px; border: 1px solid #cfdfd8; border-radius: 14px; }
         .claimant-type legend { padding: 0 8px; font-weight: 600; font-size: 0.75rem; color: #2f5d4c; text-transform: uppercase; letter-spacing: 0.6px; }
         .radio-options { display: flex; flex-wrap: wrap; gap: 14px; }
@@ -105,7 +106,7 @@
                 <div class="field"><label>Full Name</label><input type="text" id="fullName" required></div>
                 <div class="field"><label>Phone Number</label><input type="tel" id="phoneNumber" required></div>
                 <div class="field"><label>Email</label><input type="email" id="emailAddress" required></div>
-                <div class="field"><label>Warranty Date</label><input type="date" id="warrantyDateForm" required></div>
+                <div class="field"><label>Warranty Date</label><input type="date" id="warrantyDateForm" class="locked-date" disabled aria-disabled="true" title="Warranty date is fixed to today's date"></div>
             </div>
             <div class="field" style="margin-bottom: 28px;">
                 <label>Shipping Address</label>
@@ -180,6 +181,39 @@
     function generateId() { 
         return 'NCIG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase(); 
     }
+
+    function getMalaysiaDate() {
+        const parts = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Kuala_Lumpur',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).formatToParts(new Date());
+        const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+        return `${values.year}-${values.month}-${values.day}`;
+    }
+
+    function toSmartTitleCase(value) {
+        return String(value || '')
+            .split(/(\s+)/)
+            .map(part => {
+                if(/^\s+$/.test(part) || !part) return part;
+                if(/^[A-Z0-9./-]+$/.test(part) && /[A-Z]{2}/.test(part)) return part;
+                return part
+                    .toLowerCase()
+                    .replace(/(^|[-'’/])([a-z])/g, (_, boundary, letter) => boundary + letter.toUpperCase());
+            })
+            .join('');
+    }
+
+    function normalizeTitleCaseField(field) {
+        const cursorStart = field.selectionStart;
+        const cursorEnd = field.selectionEnd;
+        field.value = toSmartTitleCase(field.value);
+        if(cursorStart !== null && cursorEnd !== null && document.activeElement === field) {
+            field.setSelectionRange(cursorStart, cursorEnd);
+        }
+    }
     
     function showStatus(message, type) {
         const statusEl = document.getElementById('statusMessage');
@@ -243,11 +277,16 @@
     async function handleSubmit(e) {
         e.preventDefault();
         
-        const name = document.getElementById('fullName').value.trim();
+        const nameField = document.getElementById('fullName');
+        const addressField = document.getElementById('shippingAddress');
+        normalizeTitleCaseField(nameField);
+        normalizeTitleCaseField(addressField);
+
+        const name = nameField.value.trim();
         const phone = document.getElementById('phoneNumber').value.trim();
         const email = document.getElementById('emailAddress').value.trim();
-        const date = document.getElementById('warrantyDateForm').value;
-        const address = document.getElementById('shippingAddress').value.trim();
+        const date = getMalaysiaDate();
+        const address = addressField.value.trim();
         const category = document.querySelector('input[name="claimantType"]:checked')?.value;
         
         if(!category || !name || !phone || !email || !date || !address) { 
@@ -334,7 +373,7 @@
             document.getElementById('warrantyForm').reset();
             document.getElementById('productListContainer').innerHTML = '';
             renderProductRows();
-            document.getElementById('warrantyDateForm').valueAsDate = new Date();
+            document.getElementById('warrantyDateForm').value = getMalaysiaDate();
             
             // Scroll to top to see success message
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -448,8 +487,13 @@
         loadClaims();
         renderProductRows();
         
-        const todayStr = new Date().toISOString().split('T')[0];
-        document.getElementById('warrantyDateForm').value = todayStr;
+        document.getElementById('warrantyDateForm').value = getMalaysiaDate();
+
+        ['fullName', 'shippingAddress'].forEach(id => {
+            const field = document.getElementById(id);
+            field.addEventListener('input', () => normalizeTitleCaseField(field));
+            field.addEventListener('blur', () => normalizeTitleCaseField(field));
+        });
         
         document.getElementById('addProductBtnForm').addEventListener('click', () => {
             document.getElementById('productListContainer').appendChild(createProductRow());
