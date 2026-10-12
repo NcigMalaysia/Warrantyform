@@ -7,6 +7,13 @@ function doPost(e) {
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const category = String(data.category || '').trim();
     const claimId = String(data.claimId || '').trim();
+    const warrantyDate = Utilities.formatDate(
+      new Date(),
+      'Asia/Kuala_Lumpur',
+      'yyyy-MM-dd'
+    );
+    const customerName = toSmartTitleCase_(data.name);
+    const shippingAddress = toSmartTitleCase_(data.address);
 
     if (category !== 'User' && category !== 'Seller') {
       throw new Error('Invalid category: ' + category);
@@ -25,15 +32,15 @@ function doPost(e) {
 
     const rows = data.items.map(function (item) {
       return [
-        data.date || '',       // A: Date
-        data.name || '',       // B: Full Name
+        warrantyDate,          // A: Date (current Malaysia date)
+        customerName,          // B: Full Name
         data.phone || '',      // C: Phone Number
         data.email || '',      // D: Email
         item.product || '',    // E: Product
         item.variant || '',    // F: Variant
         item.batch || '',      // G: Batch / Serial Number
         item.defect || '',     // H: Defect
-        data.address || '',    // I: Address
+        shippingAddress,       // I: Address
         category,              // J: Category
         '',                    // K: Status
         '',                    // L: Tracking Number
@@ -104,4 +111,20 @@ function jsonResponse(result) {
   return ContentService
     .createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function toSmartTitleCase_(value) {
+  return String(value || '')
+    .trim()
+    .split(/(\s+)/)
+    .map(function (part) {
+      if (/^\s+$/.test(part) || !part) return part;
+      if (/^[A-Z0-9./-]+$/.test(part) && /[A-Z]{2}/.test(part)) return part;
+      return part
+        .toLowerCase()
+        .replace(/(^|[-'’/])([a-z])/g, function (_, boundary, letter) {
+          return boundary + letter.toUpperCase();
+        });
+    })
+    .join('');
 }
