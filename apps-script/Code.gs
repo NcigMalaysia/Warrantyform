@@ -107,6 +107,91 @@ function doPost(e) {
   }
 }
 
+function doGet(e) {
+  try {
+    const action = String((e && e.parameter && e.parameter.action) || '').trim();
+
+    if (action && action !== 'dashboard') {
+      throw new Error('Invalid action.');
+    }
+
+    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    const sourceSheets = ['User', 'Seller'];
+    const rows = [];
+
+    sourceSheets.forEach(function (sheetName) {
+      const sheet = spreadsheet.getSheetByName(sheetName);
+      if (!sheet || sheet.getLastRow() < 2) return;
+
+      const values = sheet.getDataRange().getValues();
+      const headers = values[0].map(function (header) {
+        return String(header || '').trim().toLowerCase();
+      });
+
+      const dateIndex = findHeaderIndex_(headers, ['date', 'timestamp']);
+      const productIndex = findHeaderIndex_(headers, ['product', 'produk']);
+      const variantIndex = findHeaderIndex_(headers, ['variant', 'varian']);
+      const batchIndex = findHeaderIndex_(headers, [
+        'batch number',
+        'batch / serial number',
+        'batch',
+        'serial number'
+      ]);
+      const defectIndex = findHeaderIndex_(headers, ['defect', 'defect type']);
+
+      if (
+        dateIndex < 0 ||
+        productIndex < 0 ||
+        variantIndex < 0 ||
+        batchIndex < 0 ||
+        defectIndex < 0
+      ) {
+        throw new Error('Header tidak lengkap dalam tab ' + sheetName + '.');
+      }
+
+      values.slice(1).forEach(function (row) {
+        const product = String(row[productIndex] || '').trim();
+        const defect = String(row[defectIndex] || '').trim();
+
+        if (!product || !defect) return;
+
+        rows.push({
+          Date: formatDashboardDate_(row[dateIndex]),
+          Product: product,
+          Variant: String(row[variantIndex] || '').trim(),
+          'Batch Number': String(row[batchIndex] || '').trim(),
+          Defect: defect,
+          Category: sheetName
+        });
+      });
+    });
+
+    return jsonResponse({
+      success: true,
+      rows: rows,
+      totalRecords: rows.length,
+      generatedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    return jsonResponse({ success: false, message: error.message });
+  }
+}
+
+function findHeaderIndex_(headers, candidates) {
+  for (let i = 0; i < candidates.length; i++) {
+    const index = headers.indexOf(candidates[i]);
+    if (index !== -1) return index;
+  }
+  return -1;
+}
+
+function formatDashboardDate_(value) {
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value)) {
+    return Utilities.formatDate(value, 'Asia/Kuala_Lumpur', 'yyyy-MM-dd');
+  }
+  return String(value || '').trim();
+}
+
 function jsonResponse(result) {
   return ContentService
     .createTextOutput(JSON.stringify(result))
