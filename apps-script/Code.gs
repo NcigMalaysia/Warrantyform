@@ -124,30 +124,27 @@ function doGet(e) {
       if (!sheet || sheet.getLastRow() < 2) return;
 
       const values = sheet.getDataRange().getValues();
-      const headers = values[0].map(function (header) {
-        return String(header || '').trim().toLowerCase();
-      });
+      const headers = values[0].map(normalizeHeader_);
 
-      const dateIndex = findHeaderIndex_(headers, ['date', 'timestamp']);
-      const productIndex = findHeaderIndex_(headers, ['product', 'produk']);
-      const variantIndex = findHeaderIndex_(headers, ['variant', 'varian']);
-      const batchIndex = findHeaderIndex_(headers, [
+      // New submissions always use A, E, F, G and H. Header aliases keep the
+      // dashboard compatible with older sheets whose labels were renamed.
+      const dateIndex = resolveColumnIndex_(headers, ['date', 'timestamp'], 0);
+      const productIndex = resolveColumnIndex_(headers, ['product', 'produk'], 4);
+      const variantIndex = resolveColumnIndex_(headers, ['variant', 'varian'], 5);
+      const batchIndex = resolveColumnIndex_(headers, [
         'batch number',
         'batch / serial number',
+        'batch serial number',
+        'batch no',
         'batch',
         'serial number'
-      ]);
-      const defectIndex = findHeaderIndex_(headers, ['defect', 'defect type']);
-
-      if (
-        dateIndex < 0 ||
-        productIndex < 0 ||
-        variantIndex < 0 ||
-        batchIndex < 0 ||
-        defectIndex < 0
-      ) {
-        throw new Error('Header tidak lengkap dalam tab ' + sheetName + '.');
-      }
+      ], 6);
+      const defectIndex = resolveColumnIndex_(headers, [
+        'defect',
+        'defect type',
+        'jenis defect',
+        'issue'
+      ], 7);
 
       values.slice(1).forEach(function (row) {
         const product = String(row[productIndex] || '').trim();
@@ -177,12 +174,24 @@ function doGet(e) {
   }
 }
 
-function findHeaderIndex_(headers, candidates) {
-  for (let i = 0; i < candidates.length; i++) {
-    const index = headers.indexOf(candidates[i]);
+function normalizeHeader_(header) {
+  return String(header || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function resolveColumnIndex_(headers, candidates, fallbackIndex) {
+  const normalizedCandidates = candidates.map(normalizeHeader_);
+
+  for (let i = 0; i < normalizedCandidates.length; i++) {
+    const index = headers.indexOf(normalizedCandidates[i]);
     if (index !== -1) return index;
   }
-  return -1;
+
+  return fallbackIndex;
 }
 
 function formatDashboardDate_(value) {
