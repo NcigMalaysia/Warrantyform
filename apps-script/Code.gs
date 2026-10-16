@@ -43,8 +43,7 @@ function doPost(e) {
         shippingAddress,       // I: Address
         category,              // J: Category
         '',                    // K: Status
-        '',                    // L: Tracking Number
-        claimId                // M: Claim ID
+        ''                     // L: Tracking Number
       ];
     });
 
@@ -55,22 +54,45 @@ function doPost(e) {
       if (sheet.getMaxColumns() < 13) {
         sheet.insertColumnsAfter(sheet.getMaxColumns(), 13 - sheet.getMaxColumns());
       }
-      const headerCell = sheet.getRange(1, 13);
-      const header = String(headerCell.getValue() || '').trim();
-      if (header && header !== 'Claim ID') {
-        throw new Error('Column M is already used. Please reserve it for Claim ID.');
-      }
-      if (!header && sheet.getLastRow() > 1) {
-        const existingValues = sheet.getRange(2, 13, sheet.getLastRow() - 1, 1).getValues();
-        if (existingValues.some(function (row) { return String(row[0] || '').trim() !== ''; })) {
-          throw new Error('Column M contains existing data. Please reserve it for Claim ID.');
+
+      // Reuse an existing Claim ID column wherever it is. Legacy sheets may
+      // already use column M for another field, so never overwrite that data.
+      const headerValues = sheet
+        .getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 13))
+        .getValues()[0];
+      let claimIdColumn = headerValues
+        .map(normalizeHeader_)
+        .indexOf('claim id') + 1;
+
+      if (claimIdColumn === 0) {
+        const preferredColumn = 13;
+        const preferredHeader = String(headerValues[preferredColumn - 1] || '').trim();
+        const lastRowBeforeWrite = sheet.getLastRow();
+        const preferredHasData = lastRowBeforeWrite > 1 && sheet
+          .getRange(2, preferredColumn, lastRowBeforeWrite - 1, 1)
+          .getValues()
+          .some(function (row) {
+            return String(row[0] || '').trim() !== '';
+          });
+
+        if (!preferredHeader && !preferredHasData) {
+          claimIdColumn = preferredColumn;
+        } else {
+          claimIdColumn = Math.max(sheet.getLastColumn(), preferredColumn) + 1;
+          if (sheet.getMaxColumns() < claimIdColumn) {
+            sheet.insertColumnsAfter(
+              sheet.getMaxColumns(),
+              claimIdColumn - sheet.getMaxColumns()
+            );
+          }
         }
+
+        sheet.getRange(1, claimIdColumn).setValue('Claim ID');
       }
-      if (!header) headerCell.setValue('Claim ID');
 
       const lastRow = sheet.getLastRow();
       const existing = lastRow > 1
-        ? sheet.getRange(2, 13, lastRow - 1, 1)
+        ? sheet.getRange(2, claimIdColumn, lastRow - 1, 1)
             .createTextFinder(claimId)
             .matchEntireCell(true)
             .findAll()
@@ -90,7 +112,10 @@ function doPost(e) {
         });
       }
 
-      sheet.getRange(lastRow + 1, 1, rows.length, 13).setValues(rows);
+      sheet.getRange(lastRow + 1, 1, rows.length, 12).setValues(rows);
+      sheet
+        .getRange(lastRow + 1, claimIdColumn, rows.length, 1)
+        .setValues(rows.map(function () { return [claimId]; }));
       SpreadsheetApp.flush();
 
       return jsonResponse({
@@ -103,6 +128,7 @@ function doPost(e) {
       lock.releaseLock();
     }
   } catch (error) {
+    console.error('Warranty submission failed:', error && error.stack ? error.stack : error);
     return jsonResponse({ success: false, message: error.message });
   }
 }
