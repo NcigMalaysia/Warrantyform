@@ -161,6 +161,13 @@
         "NCIG ULTRA": { image: "assets/batch-numbers/ncig-device.webp", type: "Serial Number", location: "Look along the top edge of the device for the printed code.", alt: "Example serial number printed along the top edge of an NCIG device" },
         "NPOD PRO": { image: "assets/batch-numbers/npod-pro.webp", type: "Pod Serial Number", location: "Look for the code printed on the pod body.", alt: "Example pod serial number printed on an NPOD pod" }
     };
+
+    const variantBatchGuides = {
+        "NCIG ULTRA": {
+            "Powerband Enigma": { image: "assets/batch-numbers/ncig-ultra-powerband.png", type: "Serial Number", location: "Look on the bottom of the Powerband beside the USB-C port for the printed serial number.", alt: "Example serial number on the bottom of an NCIG ULTRA Powerband beside the USB-C port" },
+            "Powerband Odyssey": { image: "assets/batch-numbers/ncig-ultra-powerband.png", type: "Serial Number", location: "Look on the bottom of the Powerband beside the USB-C port for the printed serial number.", alt: "Example serial number on the bottom of an NCIG ULTRA Powerband beside the USB-C port" }
+        }
+    };
     
     const defectList = [
         "Activation Failure", "Automatic Activation", "Burnt", "Intermittent Firing", "Leaking", "Led",
@@ -441,7 +448,13 @@
                 variants.map(v => `<option value="${v}">${v}</option>`).join('');
             if(selectedProd === 'NCIG ONE') varSel.value = 'NCIG ONE';
 
-            const guide = batchGuides[selectedProd];
+            updateBatchGuide();
+        };
+
+        const updateBatchGuide = () => {
+            const selectedProd = prodSel.value;
+            const selectedVariant = varSel.value;
+            const guide = variantBatchGuides[selectedProd]?.[selectedVariant] || batchGuides[selectedProd];
             const help = div.querySelector('.batch-help');
             const photo = div.querySelector('.batch-guide-image');
             const link = div.querySelector('.batch-guide-link');
@@ -462,6 +475,7 @@
         };
         
         prodSel.addEventListener('change', updateVariants);
+        varSel.addEventListener('change', updateBatchGuide);
         updateVariants();
         
         div.querySelector('.remove-btn').addEventListener('click', () => {
