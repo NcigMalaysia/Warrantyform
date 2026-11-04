@@ -222,13 +222,26 @@
         }
     }
     
+    let statusHideTimer = null;
+
     function showStatus(message, type) {
         const statusEl = document.getElementById('statusMessage');
+
+        if(statusHideTimer) {
+            clearTimeout(statusHideTimer);
+            statusHideTimer = null;
+        }
+
         statusEl.textContent = message;
         statusEl.className = 'status-message ' + type + ' active';
-        setTimeout(() => {
-            statusEl.classList.remove('active');
-        }, 5000);
+
+        // Keep successful submissions visible until the page is refreshed.
+        if(type !== 'success') {
+            statusHideTimer = setTimeout(() => {
+                statusEl.classList.remove('active');
+                statusHideTimer = null;
+            }, 5000);
+        }
     }
     
     // Send data to Google Sheets and verify the response
