@@ -175,23 +175,29 @@
         "Tasteless", "Weird Taste", "Assembly Issues"
     ];
 
+    const ncigDeviceDefects = [
+        "Activation Failure",
+        "Automatic Activation",
+        "Led",
+        "No Vibration",
+        "Not able to charge",
+        "Npod not detected",
+        "Pin damage/stuck in"
+    ];
+
     const defectListsByProduct = {
         "NPOD PRO": ["Burn", "Leaking", "Tasteless", "Weird Taste"],
-        "NCIG PRO": [
-            "Activation Failure",
-            "Automatic Activation",
-            "Led",
-            "No Vibration",
-            "Not able to charge",
-            "Npod not detected",
-            "Pin damage/stuck in"
-        ]
+        "NCIG PRO": ncigDeviceDefects,
+        "NCIG ONE": ncigDeviceDefects,
+        "NCIG CUBE": ncigDeviceDefects
     };
 
     const defectListsByVariant = {
         "NCIG ULTRA": {
             "Powerband Enigma": ["Pin damage", "Led Issue", "Not detected"],
-            "Powerband Odyssey": ["Pin damage", "Led Issue", "Not detected"]
+            "Powerband Odyssey": ["Pin damage", "Led Issue", "Not detected"],
+            "Device Enigma": ncigDeviceDefects,
+            "Device Odyssey": ncigDeviceDefects
         }
     };
     
