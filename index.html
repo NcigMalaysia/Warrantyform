@@ -70,6 +70,7 @@
         .batch-guide-link { display: inline-block; max-width: 100%; }
         .flex-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; }
         .flex-field { flex: 1; min-width: 150px; }
+        .batch-input { text-transform: uppercase; }
         .remove-btn { background: #fff4f0; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 500; color: #b1624b; cursor: pointer; font-size: 0.75rem; }
         .btn-add { background: transparent; border: 1.5px dashed #b9cfc5; padding: 10px 22px; border-radius: 40px; font-weight: 600; margin: 10px 0 20px; cursor: pointer; color: #2f5d4c; }
         .btn-submit { background: #0b3b2f; color: white; border: none; padding: 14px 32px; border-radius: 40px; font-weight: 700; font-size: 0.9rem; cursor: pointer; float: right; }
@@ -370,7 +371,7 @@
         rows.forEach(row => {
             const product = row.querySelector('.prod-select').value;
             const variant = row.querySelector('.variant-select').value;
-            const batch = row.querySelector('.batch-input').value.trim();
+            const batch = row.querySelector('.batch-input').value.trim().toUpperCase();
             const defect = row.querySelector('.defect-select').value;
             
             if(!product || !variant || !batch || !defect) { 
@@ -478,7 +479,7 @@
                 </div>
                 <div class="flex-field">
                     <label class="batch-label" style="font-size:0.7rem;">Batch / Serial Number</label>
-                    <input type="text" class="batch-input" placeholder="Enter the code on your product" required>
+                    <input type="text" class="batch-input" placeholder="Enter the code on your product" autocapitalize="characters" spellcheck="false" required>
                 </div>
                 <div class="flex-field">
                     <label style="font-size:0.7rem;">Defect</label>
@@ -500,6 +501,14 @@
         const prodSel = div.querySelector('.prod-select');
         const varSel = div.querySelector('.variant-select');
         const defectSel = div.querySelector('.defect-select');
+        const batchInput = div.querySelector('.batch-input');
+
+        batchInput.addEventListener('input', () => {
+            const selectionStart = batchInput.selectionStart;
+            const selectionEnd = batchInput.selectionEnd;
+            batchInput.value = batchInput.value.toUpperCase();
+            batchInput.setSelectionRange(selectionStart, selectionEnd);
+        });
         
         const updateVariants = () => {
             const selectedProd = prodSel.value;
